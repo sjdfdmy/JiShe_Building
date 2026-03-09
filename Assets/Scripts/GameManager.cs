@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("ÓÎÏ·¶ÔÏó")]
+    [Header("ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½")]
     public Drag[] allBlocks;
     public Target[] allTargets;
 
@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    // ¼ì²éÊÇ·ñÈ«²¿Íê³É
+    // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½
     public void CheckComplete()
     {
         foreach (var block in allBlocks)
