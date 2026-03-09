@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    // ����Ƿ�ȫ�����
+    // 检查是否全部完成
     public void CheckComplete()
     {
         foreach (var block in allBlocks)
@@ -33,5 +33,17 @@ public class GameManager : MonoBehaviour
                 return;
         }
 
+        // 所有块体已放置：显示完成面板
+        if (completePanel != null)
+            completePanel.SetActive(true);
+    }
+
+    // 切换到指定场景（带过渡动画）
+    public void LoadScene(string sceneName)
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.LoadScene(sceneName);
+        else
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
     }
 }
