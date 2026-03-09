@@ -63,8 +63,7 @@ public class InventoryGrid : MonoBehaviour
             {
                 if (!hasCoverSkill)
                     return false;
-
-                // A slot can hold at most two block parts
+                
                 GridItem overlapOccupant = overlapData[targetX, targetY];
                 if (overlapOccupant != null && overlapOccupant != item)
                     return false;
@@ -80,8 +79,7 @@ public class InventoryGrid : MonoBehaviour
 
         return true;
     }
-
-    // Returns the number of cells that would become newly shared if item is placed at pivotPos.
+    
     public int CountNewSharedSlots(GridItem item, Vector2Int pivotPos)
     {
         int count = 0;
