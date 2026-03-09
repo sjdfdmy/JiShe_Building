@@ -371,15 +371,20 @@ FodyWeavers.xsd
 MemoryCaptures/
 Recordings/
 
-# Unity Éú³ÉÎÄ¼þ
+# Unity ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
 sysinfo.txt
 crashlytics-build.properties
 
-# ¹¹½¨Êä³ö
+# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 *.apk
 *.aab
 *.unitypackage
 *.app
+
+*.csproj
+*.sln
+.vs/
+.idea/
