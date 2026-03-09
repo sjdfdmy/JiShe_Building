@@ -23,8 +23,7 @@ public class GameManager : MonoBehaviour
     {
 
     }
-
-    // ����Ƿ�ȫ�����
+    
     public void CheckComplete()
     {
         foreach (var block in allBlocks)
@@ -32,6 +31,16 @@ public class GameManager : MonoBehaviour
             if (!block.isPlaced)
                 return;
         }
-
+        
+        if (completePanel != null)
+            completePanel.SetActive(true);
+    }
+    
+    public void LoadScene(string sceneName)
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.LoadScene(sceneName);
+        else
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
     }
 }

@@ -11,7 +11,7 @@ public class GridItem : MonoBehaviour
     [HideInInspector] public Quaternion spawnRotation;
     [HideInInspector] public int currentRotationStep = 0;
     [HideInInspector] public Vector2Int currentGridPosition;
-    [HideInInspector] public bool isInBackpack = false;
+    [HideInInspector] public bool isInModule = false;
 
     void Start()
     {

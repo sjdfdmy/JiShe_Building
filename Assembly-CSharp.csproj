@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\CreateScriptObj\CreateHouse.cs" />
     <Compile Include="Assets\Scripts\Ghost.cs" />
+    <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
+    <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Drag.cs" />
     <Compile Include="Assets\Scripts\Target.cs" />

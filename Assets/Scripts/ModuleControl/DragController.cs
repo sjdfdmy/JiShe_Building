@@ -4,17 +4,20 @@ using UnityEngine;
 public class DragController : MonoBehaviour
 {
     public InventoryGrid inventoryGrid;
-    public LayerMask itemLayer; 
-    public Material ghostValidMat; 
-    public Material ghostInvalidMat; 
+    public LayerMask itemLayer;
+    public Material ghostValidMat;
+    public Material ghostInvalidMat;
+    public Material ghostSharedMat;
+    
+    public float dragZOffset = -2f; 
 
     private GridItem draggedItem;
     private GameObject ghostObject;
     private Plane dragPlane;
     private bool isDragging = false;
-    
+
     private Vector3 mouseStartPos;
-    private bool wasInBackpackBeforeDrag;
+    private bool wasInModuleBeforeDrag;
 
     void Update()
     {
@@ -44,10 +47,10 @@ public class DragController : MonoBehaviour
             {
                 isDragging = true;
                 mouseStartPos = Input.mousePosition;
-                wasInBackpackBeforeDrag = draggedItem.isInBackpack;
-                
-                inventoryGrid.RemoveItem(draggedItem); 
+                wasInModuleBeforeDrag = draggedItem.isInModule;
 
+                inventoryGrid.RemoveItem(draggedItem);
+                
                 dragPlane = new Plane(Vector3.forward, new Vector3(0, 0, draggedItem.transform.position.z));
                 CreateGhost();
             }
@@ -60,6 +63,9 @@ public class DragController : MonoBehaviour
         if (dragPlane.Raycast(ray, out float enter))
         {
             Vector3 hitPoint = ray.GetPoint(enter);
+            
+            hitPoint.z += dragZOffset; 
+            
             draggedItem.transform.position = hitPoint;
 
             UpdateGhostPreview();
@@ -70,24 +76,24 @@ public class DragController : MonoBehaviour
     {
         isDragging = false;
         if (ghostObject) Destroy(ghostObject);
-
-        Vector2Int gridPos = inventoryGrid.WorldToGrid(draggedItem.transform.position);
         
+        Vector2Int gridPos = inventoryGrid.WorldToGrid(draggedItem.transform.position);
+
         bool isClick = Vector3.Distance(Input.mousePosition, mouseStartPos) < 5f;
 
-        if (isClick && wasInBackpackBeforeDrag)
+        if (isClick && wasInModuleBeforeDrag)
         {
             StartCoroutine(SmoothReturn(draggedItem));
         }
         else if (inventoryGrid.IsWithinBounds(draggedItem, gridPos) && inventoryGrid.IsPlacementValid(draggedItem, gridPos))
         {
-            inventoryGrid.PlaceItem(draggedItem, gridPos); 
+            inventoryGrid.PlaceItem(draggedItem, gridPos);
         }
         else
         {
             StartCoroutine(SmoothReturn(draggedItem));
         }
-        
+
         draggedItem = null;
     }
 
@@ -96,8 +102,8 @@ public class DragController : MonoBehaviour
         ghostObject = Instantiate(draggedItem.gameObject);
         Destroy(ghostObject.GetComponent<GridItem>());
         Destroy(ghostObject.GetComponent<Collider>());
-        
-        ghostObject.SetActive(false); 
+
+        ghostObject.SetActive(false);
     }
 
     void UpdateGhostPreview()
@@ -107,11 +113,17 @@ public class DragController : MonoBehaviour
         if (inventoryGrid.IsWithinBounds(draggedItem, gridPos))
         {
             if (!ghostObject.activeSelf) ghostObject.SetActive(true);
-            
+
             ghostObject.transform.position = inventoryGrid.GridToWorld(gridPos);
 
             if (inventoryGrid.IsPlacementValid(draggedItem, gridPos))
-                ChangeGhostMaterial(ghostValidMat);
+            {
+                // When cover skill is active and the placement uses shared slots, show the shared material
+                if (inventoryGrid.hasCoverSkill && inventoryGrid.CountNewSharedSlots(draggedItem, gridPos) > 0)
+                    ChangeGhostMaterial(ghostSharedMat != null ? ghostSharedMat : ghostValidMat);
+                else
+                    ChangeGhostMaterial(ghostValidMat);
+            }
             else
                 ChangeGhostMaterial(ghostInvalidMat);
         }
@@ -134,11 +146,11 @@ public class DragController : MonoBehaviour
     {
         Vector3 startPos = item.transform.position;
         Quaternion startRot = item.transform.rotation;
-        
+
         float time = 0;
         float duration = 0.25f;
 
-        item.currentRotationStep = 0; 
+        item.currentRotationStep = 0;
 
         while (time < duration)
         {
