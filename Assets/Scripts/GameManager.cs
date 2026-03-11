@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("游戏对象")]
+    [Header("锟斤拷戏锟斤拷锟斤拷")]
     public Drag[] allBlocks;
     public Target[] allTargets;
 
@@ -23,8 +23,7 @@ public class GameManager : MonoBehaviour
     {
 
     }
-
-    // 检查是否全部完成
+    
     public void CheckComplete()
     {
         foreach (var block in allBlocks)
@@ -32,6 +31,16 @@ public class GameManager : MonoBehaviour
             if (!block.isPlaced)
                 return;
         }
-
+        
+        if (completePanel != null)
+            completePanel.SetActive(true);
+    }
+    
+    public void LoadScene(string sceneName)
+    {
+        if (SceneTransitionManager.Instance != null)
+            SceneTransitionManager.Instance.LoadScene(sceneName);
+        else
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
     }
 }
