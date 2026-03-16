@@ -9,8 +9,7 @@ public class InventoryGrid : MonoBehaviour
     public float cellSize = 80f;
     public RectTransform gridOrigin;
 
-    [Header("Cover Skill")]
-    public bool hasCoverSkill = false;
+    [Header("Cover Skill")] public bool hasCoverSkill = false;
     public int maxSharedSlots = 1;
 
     private GridItem[,] gridData;
@@ -37,7 +36,7 @@ public class InventoryGrid : MonoBehaviour
     {
         return gridOrigin.anchoredPosition + new Vector2(gridPos.x * cellSize, gridPos.y * cellSize);
     }
-    
+
     public bool IsWithinBounds(GridItem item, Vector2Int pivotPos)
     {
         foreach (Vector2Int cell in item.GetCurrentShape())
@@ -48,6 +47,7 @@ public class InventoryGrid : MonoBehaviour
             if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
                 return false;
         }
+
         return true;
     }
 
@@ -66,7 +66,7 @@ public class InventoryGrid : MonoBehaviour
             {
                 if (!hasCoverSkill)
                     return false;
-                
+
                 GridItem overlapOccupant = overlapData[targetX, targetY];
                 if (overlapOccupant != null && overlapOccupant != item)
                     return false;
@@ -82,7 +82,7 @@ public class InventoryGrid : MonoBehaviour
 
         return true;
     }
-    
+
     public int CountNewSharedSlots(GridItem item, Vector2Int pivotPos)
     {
         int count = 0;
@@ -98,6 +98,7 @@ public class InventoryGrid : MonoBehaviour
             if (occupant != null && occupant != item)
                 count++;
         }
+
         return count;
     }
 
@@ -105,16 +106,16 @@ public class InventoryGrid : MonoBehaviour
     {
         int count = 0;
         for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                if (gridData[x, y] != null && overlapData[x, y] != null)
-                    count++;
+        for (int y = 0; y < height; y++)
+            if (gridData[x, y] != null && overlapData[x, y] != null)
+                count++;
         return count;
     }
 
     public void PlaceItem(GridItem item, Vector2Int pivotPos)
     {
-        RemoveItem(item); 
-        
+        RemoveItem(item);
+
         foreach (Vector2Int cell in item.GetCurrentShape())
         {
             int x = pivotPos.x + cell.x;
@@ -125,11 +126,11 @@ public class InventoryGrid : MonoBehaviour
             else
                 overlapData[x, y] = item; // Shared slot (cover skill)
         }
-        
+
         item.currentGridPosition = pivotPos;
         item.RectTransform.anchoredPosition = GridToPosition(pivotPos);
         item.isInModule = true; // Mark as in module
-        
+
         if (!itemsInModule.Contains(item))
             itemsInModule.Add(item);
     }
@@ -154,6 +155,7 @@ public class InventoryGrid : MonoBehaviour
                     }
                 }
             }
+
             itemsInModule.Remove(item);
             item.isInModule = false;
         }
@@ -166,6 +168,7 @@ public class InventoryGrid : MonoBehaviour
         {
             exportedData.Add(item.itemName, item.currentGridPosition);
         }
+
         return exportedData;
     }
 
@@ -178,35 +181,51 @@ public class InventoryGrid : MonoBehaviour
     {
         if (gridOrigin == null) return;
 
-        // Convert the grid origin anchored position to world space
-        Vector3 originWorld = gridOrigin.position;
-        // Determine world-space size of one cell
-        Vector3 cellWorld = gridOrigin.TransformVector(new Vector3(cellSize, cellSize, 0f));
-        float cellW = Mathf.Abs(cellWorld.x);
-        float cellH = Mathf.Abs(cellWorld.y);
+        // Use the SAME coordinate system as PositionToGrid()
+        Vector2 originAnchor = gridOrigin.anchoredPosition;
+
+        // Convert anchored position to world position
+        RectTransform canvasRect = gridOrigin.GetComponentInParent<Canvas>()?.GetComponent<RectTransform>();
+        if (canvasRect == null) return;
 
         Gizmos.color = Color.cyan;
 
         // Draw vertical lines
         for (int x = 0; x <= width; x++)
         {
-            Vector3 bottom = originWorld + gridOrigin.right * (x * cellW);
-            Vector3 top = bottom + gridOrigin.up * (height * cellH);
-            Gizmos.DrawLine(bottom, top);
+            Vector2 bottomAnchor = originAnchor + new Vector2(x * cellSize, 0);
+            Vector2 topAnchor = originAnchor + new Vector2(x * cellSize, height * cellSize);
+
+            Vector3 bottomWorld = GetWorldPosition(canvasRect, bottomAnchor);
+            Vector3 topWorld = GetWorldPosition(canvasRect, topAnchor);
+
+            Gizmos.DrawLine(bottomWorld, topWorld);
         }
 
         // Draw horizontal lines
         for (int y = 0; y <= height; y++)
         {
-            Vector3 left = originWorld + gridOrigin.up * (y * cellH);
-            Vector3 right = left + gridOrigin.right * (width * cellW);
-            Gizmos.DrawLine(left, right);
+            Vector2 leftAnchor = originAnchor + new Vector2(0, y * cellSize);
+            Vector2 rightAnchor = originAnchor + new Vector2(width * cellSize, y * cellSize);
+
+            Vector3 leftWorld = GetWorldPosition(canvasRect, leftAnchor);
+            Vector3 rightWorld = GetWorldPosition(canvasRect, rightAnchor);
+
+            Gizmos.DrawLine(leftWorld, rightWorld);
         }
 
         // Highlight the origin cell
         Gizmos.color = Color.yellow;
-        Vector3 originCenter = originWorld + gridOrigin.right * (cellW * 0.5f) + gridOrigin.up * (cellH * 0.5f);
-        Gizmos.DrawWireCube(originCenter, new Vector3(cellW, cellH, 0f));
+        Vector2 originCenterAnchor = originAnchor + new Vector2(cellSize * 0.5f, cellSize * 0.5f);
+        Vector3 originCenterWorld = GetWorldPosition(canvasRect, originCenterAnchor);
+        Gizmos.DrawWireCube(originCenterWorld, new Vector3(cellSize, cellSize, 0.1f));
+    }
+
+// Helper method to convert anchored position to world position
+    private Vector3 GetWorldPosition(RectTransform canvasRect, Vector2 anchoredPos)
+    {
+        Vector3 worldPos = canvasRect.TransformPoint(anchoredPos);
+        return worldPos;
     }
 
     /// <summary>
