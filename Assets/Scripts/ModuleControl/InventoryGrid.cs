@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(RectTransform))]
 public class InventoryGrid : MonoBehaviour
 {
     public int width = 4;
     public int height = 4;
-    public float cellSize = 1f;
-    public Transform gridOrigin;
+    public float cellSize = 80f;
+    public RectTransform gridOrigin;
 
     [Header("Cover Skill")]
     public bool hasCoverSkill = false;
@@ -15,24 +16,26 @@ public class InventoryGrid : MonoBehaviour
     private GridItem[,] gridData;
     private GridItem[,] overlapData;
     private List<GridItem> itemsInModule = new List<GridItem>();
+    private RectTransform rectTransform;
 
     void Awake()
     {
+        rectTransform = GetComponent<RectTransform>();
         gridData = new GridItem[width, height];
         overlapData = new GridItem[width, height];
     }
 
-    public Vector2Int WorldToGrid(Vector3 worldPos)
+    public Vector2Int PositionToGrid(Vector2 anchoredPos)
     {
-        Vector3 localPos = worldPos - gridOrigin.position;
-        int x = Mathf.RoundToInt(localPos.x / cellSize);
-        int y = Mathf.RoundToInt(localPos.y / cellSize);
+        Vector2 offset = anchoredPos - gridOrigin.anchoredPosition;
+        int x = Mathf.RoundToInt(offset.x / cellSize);
+        int y = Mathf.RoundToInt(offset.y / cellSize);
         return new Vector2Int(x, y);
     }
 
-    public Vector3 GridToWorld(Vector2Int gridPos)
+    public Vector2 GridToPosition(Vector2Int gridPos)
     {
-        return gridOrigin.position + new Vector3(gridPos.x * cellSize, gridPos.y * cellSize, 0);
+        return gridOrigin.anchoredPosition + new Vector2(gridPos.x * cellSize, gridPos.y * cellSize);
     }
     
     public bool IsWithinBounds(GridItem item, Vector2Int pivotPos)
@@ -124,7 +127,7 @@ public class InventoryGrid : MonoBehaviour
         }
         
         item.currentGridPosition = pivotPos;
-        item.transform.position = GridToWorld(pivotPos);
+        item.RectTransform.anchoredPosition = GridToPosition(pivotPos);
         item.isInModule = true; // Mark as in module
         
         if (!itemsInModule.Contains(item))
@@ -164,5 +167,27 @@ public class InventoryGrid : MonoBehaviour
             exportedData.Add(item.itemName, item.currentGridPosition);
         }
         return exportedData;
+    }
+
+    /// <summary>
+    /// Adjusts the slot (cell) size of the module so it can fit the visual
+    /// texture of the UI. Updates the grid panel size and repositions all
+    /// currently placed items to match the new cell size.
+    /// </summary>
+    /// <param name="newCellSize">New cell size in pixels.</param>
+    public void SetSlotSize(float newCellSize)
+    {
+        if (newCellSize <= 0f) return;
+
+        cellSize = newCellSize;
+
+        // Resize the grid panel to match the new cell size
+        rectTransform.sizeDelta = new Vector2(width * cellSize, height * cellSize);
+
+        // Reposition all placed items to align with the new cell size
+        foreach (GridItem item in itemsInModule)
+        {
+            item.RectTransform.anchoredPosition = GridToPosition(item.currentGridPosition);
+        }
     }
 }
