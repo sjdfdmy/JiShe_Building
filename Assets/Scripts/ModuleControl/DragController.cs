@@ -1,23 +1,31 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DragController : MonoBehaviour
 {
     public InventoryGrid inventoryGrid;
-    public LayerMask itemLayer;
-    public Material ghostValidMat;
-    public Material ghostInvalidMat;
-    public Material ghostSharedMat;
-    
-    public float dragZOffset = -2f; 
+    public Canvas canvas;
+    public Color ghostValidColor = new Color(0f, 1f, 0f, 0.5f);
+    public Color ghostInvalidColor = new Color(1f, 0f, 0f, 0.5f);
+    public Color ghostSharedColor = new Color(1f, 1f, 0f, 0.5f);
 
     private GridItem draggedItem;
     private GameObject ghostObject;
-    private Plane dragPlane;
     private bool isDragging = false;
 
-    private Vector3 mouseStartPos;
+    private Vector2 mouseStartPos;
     private bool wasInModuleBeforeDrag;
+    private Camera uiCamera;
+
+    void Start()
+    {
+        if (canvas == null)
+            canvas = GetComponentInParent<Canvas>();
+        uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+    }
 
     void Update()
     {
@@ -32,44 +40,49 @@ public class DragController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {
                 draggedItem.RotateItem();
-                if (ghostObject) ghostObject.transform.rotation = draggedItem.transform.rotation;
+                if (ghostObject)
+                    ghostObject.GetComponent<RectTransform>().localRotation = draggedItem.RectTransform.localRotation;
             }
         }
     }
 
     void StartDrag()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, itemLayer))
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
-            draggedItem = hit.collider.GetComponent<GridItem>();
-            if (draggedItem != null)
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (var result in results)
+        {
+            GridItem item = result.gameObject.GetComponent<GridItem>();
+            if (item != null)
             {
+                draggedItem = item;
                 isDragging = true;
                 mouseStartPos = Input.mousePosition;
                 wasInModuleBeforeDrag = draggedItem.isInModule;
 
                 inventoryGrid.RemoveItem(draggedItem);
-                
-                dragPlane = new Plane(Vector3.forward, new Vector3(0, 0, draggedItem.transform.position.z));
+                draggedItem.RectTransform.SetAsLastSibling();
                 CreateGhost();
+                break;
             }
         }
     }
 
     void UpdateDrag()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (dragPlane.Raycast(ray, out float enter))
-        {
-            Vector3 hitPoint = ray.GetPoint(enter);
-            
-            hitPoint.z += dragZOffset; 
-            
-            draggedItem.transform.position = hitPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvas.transform as RectTransform,
+            Input.mousePosition,
+            uiCamera,
+            out Vector2 localPoint);
 
-            UpdateGhostPreview();
-        }
+        draggedItem.RectTransform.anchoredPosition = localPoint;
+        UpdateGhostPreview();
     }
 
     void EndDrag()
@@ -77,9 +90,9 @@ public class DragController : MonoBehaviour
         isDragging = false;
         if (ghostObject) Destroy(ghostObject);
         
-        Vector2Int gridPos = inventoryGrid.WorldToGrid(draggedItem.transform.position);
+        Vector2Int gridPos = inventoryGrid.PositionToGrid(draggedItem.RectTransform.anchoredPosition);
 
-        bool isClick = Vector3.Distance(Input.mousePosition, mouseStartPos) < 5f;
+        bool isClick = Vector2.Distance(Input.mousePosition, mouseStartPos) < 5f;
 
         if (isClick && wasInModuleBeforeDrag)
         {
@@ -99,33 +112,40 @@ public class DragController : MonoBehaviour
 
     void CreateGhost()
     {
-        ghostObject = Instantiate(draggedItem.gameObject);
+        ghostObject = Instantiate(draggedItem.gameObject, draggedItem.RectTransform.parent);
         Destroy(ghostObject.GetComponent<GridItem>());
-        Destroy(ghostObject.GetComponent<Collider>());
+
+        // Place the ghost below the dragged item so it doesn't appear above the block
+        int draggedIndex = draggedItem.RectTransform.GetSiblingIndex();
+        ghostObject.GetComponent<RectTransform>().SetSiblingIndex(draggedIndex);
+
+        // Disable raycasting on all ghost images so they don't intercept input
+        Image[] images = ghostObject.GetComponentsInChildren<Image>();
+        foreach (var img in images)
+            img.raycastTarget = false;
 
         ghostObject.SetActive(false);
     }
 
     void UpdateGhostPreview()
     {
-        Vector2Int gridPos = inventoryGrid.WorldToGrid(draggedItem.transform.position);
+        Vector2Int gridPos = inventoryGrid.PositionToGrid(draggedItem.RectTransform.anchoredPosition);
 
         if (inventoryGrid.IsWithinBounds(draggedItem, gridPos))
         {
             if (!ghostObject.activeSelf) ghostObject.SetActive(true);
 
-            ghostObject.transform.position = inventoryGrid.GridToWorld(gridPos);
+            ghostObject.GetComponent<RectTransform>().anchoredPosition = inventoryGrid.GridToPosition(gridPos);
 
             if (inventoryGrid.IsPlacementValid(draggedItem, gridPos))
             {
-                // When cover skill is active and the placement uses shared slots, show the shared material
                 if (inventoryGrid.hasCoverSkill && inventoryGrid.CountNewSharedSlots(draggedItem, gridPos) > 0)
-                    ChangeGhostMaterial(ghostSharedMat != null ? ghostSharedMat : ghostValidMat);
+                    ChangeGhostColor(ghostSharedColor);
                 else
-                    ChangeGhostMaterial(ghostValidMat);
+                    ChangeGhostColor(ghostValidColor);
             }
             else
-                ChangeGhostMaterial(ghostInvalidMat);
+                ChangeGhostColor(ghostInvalidColor);
         }
         else
         {
@@ -133,34 +153,35 @@ public class DragController : MonoBehaviour
         }
     }
 
-    void ChangeGhostMaterial(Material mat)
+    void ChangeGhostColor(Color color)
     {
-        Renderer[] renderers = ghostObject.GetComponentsInChildren<Renderer>();
-        foreach (var r in renderers)
+        Image[] images = ghostObject.GetComponentsInChildren<Image>();
+        foreach (var img in images)
         {
-            r.material = mat;
+            img.color = color;
         }
     }
 
     IEnumerator SmoothReturn(GridItem item)
     {
-        Vector3 startPos = item.transform.position;
-        Quaternion startRot = item.transform.rotation;
+        Vector2 startPos = item.RectTransform.anchoredPosition;
+        Quaternion startRot = item.RectTransform.localRotation;
 
         float time = 0;
         float duration = 0.25f;
 
         item.currentRotationStep = 0;
+        Quaternion targetRot = item.spawnRotation;
 
         while (time < duration)
         {
-            item.transform.position = Vector3.Lerp(startPos, item.spawnPosition, time / duration);
-            item.transform.rotation = Quaternion.Lerp(startRot, item.spawnRotation, time / duration);
+            item.RectTransform.anchoredPosition = Vector2.Lerp(startPos, item.spawnPosition, time / duration);
+            item.RectTransform.localRotation = Quaternion.Lerp(startRot, targetRot, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        item.transform.position = item.spawnPosition;
-        item.transform.rotation = item.spawnRotation;
+        item.RectTransform.anchoredPosition = item.spawnPosition;
+        item.RectTransform.localRotation = targetRot;
     }
 }

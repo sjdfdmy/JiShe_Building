@@ -1,28 +1,53 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(Image))]
 public class GridItem : MonoBehaviour
 {
     public string itemName;
     [Tooltip("Include (0,0) for the pivot, and relative coordinates for children, e.g., (1,0)")]
     public List<Vector2Int> localCells = new List<Vector2Int> { new Vector2Int(0, 0) };
 
-    [HideInInspector] public Vector3 spawnPosition;
+    [HideInInspector] public Vector2 spawnPosition;
     [HideInInspector] public Quaternion spawnRotation;
     [HideInInspector] public int currentRotationStep = 0;
     [HideInInspector] public Vector2Int currentGridPosition;
     [HideInInspector] public bool isInModule = false;
 
-    private float defaultZ;
-    // Adjust this value based on your camera and layering needs. 
-    // Negative usually brings it closer to the camera in standard 2D setups.
-    private const float DRAG_Z_OFFSET = -1f; 
+    private RectTransform rectTransform;
+    private Image image;
+
+    void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        image = GetComponent<Image>();
+    }
 
     void Start()
     {
-        spawnPosition = transform.position;
-        spawnRotation = transform.rotation;
-        defaultZ = transform.position.z;
+        spawnPosition = rectTransform.anchoredPosition;
+        spawnRotation = rectTransform.localRotation;
+    }
+
+    public RectTransform RectTransform
+    {
+        get
+        {
+            if (rectTransform == null)
+                rectTransform = GetComponent<RectTransform>();
+            return rectTransform;
+        }
+    }
+
+    public Image Image
+    {
+        get
+        {
+            if (image == null)
+                image = GetComponent<Image>();
+            return image;
+        }
     }
 
     public List<Vector2Int> GetCurrentShape()
@@ -47,20 +72,6 @@ public class GridItem : MonoBehaviour
     public void RotateItem()
     {
         currentRotationStep = (currentRotationStep + 1) % 4;
-        transform.Rotate(0, 0, -90f);
-    }
-    
-    public void OnBeginDrag()
-    {
-        Vector3 pos = transform.position;
-        pos.z = defaultZ + DRAG_Z_OFFSET;
-        transform.position = pos;
-    }
-    
-    public void OnEndDrag()
-    {
-        Vector3 pos = transform.position;
-        pos.z = defaultZ;
-        transform.position = pos;
+        rectTransform.localRotation = Quaternion.Euler(0, 0, -90f * currentRotationStep);
     }
 }
