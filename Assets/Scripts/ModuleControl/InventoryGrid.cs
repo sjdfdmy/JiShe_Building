@@ -174,30 +174,20 @@ public class InventoryGrid : MonoBehaviour
 
     /// <summary>
     /// Draws the module grid in the Scene view using Gizmos.
-    /// Useful during testing to visually align the grid origin with
-    /// the module texture.
+    /// Uses the pivot location of gridOrigin as the left-down-most
+    /// point so the visualization fits perfectly with the grids.
     /// </summary>
     void OnDrawGizmos()
     {
         if (gridOrigin == null) return;
-
-        // Use the SAME coordinate system as PositionToGrid()
-        Vector2 originAnchor = gridOrigin.anchoredPosition;
-
-        // Convert anchored position to world position
-        RectTransform canvasRect = gridOrigin.GetComponentInParent<Canvas>()?.GetComponent<RectTransform>();
-        if (canvasRect == null) return;
 
         Gizmos.color = Color.cyan;
 
         // Draw vertical lines
         for (int x = 0; x <= width; x++)
         {
-            Vector2 bottomAnchor = originAnchor + new Vector2(x * cellSize, 0);
-            Vector2 topAnchor = originAnchor + new Vector2(x * cellSize, height * cellSize);
-
-            Vector3 bottomWorld = GetWorldPosition(canvasRect, bottomAnchor);
-            Vector3 topWorld = GetWorldPosition(canvasRect, topAnchor);
+            Vector3 bottomWorld = gridOrigin.TransformPoint(new Vector3(x * cellSize, 0, 0));
+            Vector3 topWorld = gridOrigin.TransformPoint(new Vector3(x * cellSize, height * cellSize, 0));
 
             Gizmos.DrawLine(bottomWorld, topWorld);
         }
@@ -205,27 +195,17 @@ public class InventoryGrid : MonoBehaviour
         // Draw horizontal lines
         for (int y = 0; y <= height; y++)
         {
-            Vector2 leftAnchor = originAnchor + new Vector2(0, y * cellSize);
-            Vector2 rightAnchor = originAnchor + new Vector2(width * cellSize, y * cellSize);
-
-            Vector3 leftWorld = GetWorldPosition(canvasRect, leftAnchor);
-            Vector3 rightWorld = GetWorldPosition(canvasRect, rightAnchor);
+            Vector3 leftWorld = gridOrigin.TransformPoint(new Vector3(0, y * cellSize, 0));
+            Vector3 rightWorld = gridOrigin.TransformPoint(new Vector3(width * cellSize, y * cellSize, 0));
 
             Gizmos.DrawLine(leftWorld, rightWorld);
         }
 
         // Highlight the origin cell
         Gizmos.color = Color.yellow;
-        Vector2 originCenterAnchor = originAnchor + new Vector2(cellSize * 0.5f, cellSize * 0.5f);
-        Vector3 originCenterWorld = GetWorldPosition(canvasRect, originCenterAnchor);
-        Gizmos.DrawWireCube(originCenterWorld, new Vector3(cellSize, cellSize, 0.1f));
-    }
-
-// Helper method to convert anchored position to world position
-    private Vector3 GetWorldPosition(RectTransform canvasRect, Vector2 anchoredPos)
-    {
-        Vector3 worldPos = canvasRect.TransformPoint(anchoredPos);
-        return worldPos;
+        Vector3 originCenterWorld = gridOrigin.TransformPoint(new Vector3(cellSize * 0.5f, cellSize * 0.5f, 0));
+        Vector3 scale = gridOrigin.lossyScale;
+        Gizmos.DrawWireCube(originCenterWorld, new Vector3(cellSize * scale.x, cellSize * scale.y, 0.1f));
     }
 
     /// <summary>
