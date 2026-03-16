@@ -170,6 +170,46 @@ public class InventoryGrid : MonoBehaviour
     }
 
     /// <summary>
+    /// Draws the module grid in the Scene view using Gizmos.
+    /// Useful during testing to visually align the grid origin with
+    /// the module texture.
+    /// </summary>
+    void OnDrawGizmos()
+    {
+        if (gridOrigin == null) return;
+
+        // Convert the grid origin anchored position to world space
+        Vector3 originWorld = gridOrigin.position;
+        // Determine world-space size of one cell
+        Vector3 cellWorld = gridOrigin.TransformVector(new Vector3(cellSize, cellSize, 0f));
+        float cellW = Mathf.Abs(cellWorld.x);
+        float cellH = Mathf.Abs(cellWorld.y);
+
+        Gizmos.color = Color.cyan;
+
+        // Draw vertical lines
+        for (int x = 0; x <= width; x++)
+        {
+            Vector3 bottom = originWorld + gridOrigin.right * (x * cellW);
+            Vector3 top = bottom + gridOrigin.up * (height * cellH);
+            Gizmos.DrawLine(bottom, top);
+        }
+
+        // Draw horizontal lines
+        for (int y = 0; y <= height; y++)
+        {
+            Vector3 left = originWorld + gridOrigin.up * (y * cellH);
+            Vector3 right = left + gridOrigin.right * (width * cellW);
+            Gizmos.DrawLine(left, right);
+        }
+
+        // Highlight the origin cell
+        Gizmos.color = Color.yellow;
+        Vector3 originCenter = originWorld + gridOrigin.right * (cellW * 0.5f) + gridOrigin.up * (cellH * 0.5f);
+        Gizmos.DrawWireCube(originCenter, new Vector3(cellW, cellH, 0f));
+    }
+
+    /// <summary>
     /// Adjusts the slot (cell) size of the module so it can fit the visual
     /// texture of the UI. Updates the grid panel size and repositions all
     /// currently placed items to match the new cell size.

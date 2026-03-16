@@ -115,6 +115,10 @@ public class DragController : MonoBehaviour
         ghostObject = Instantiate(draggedItem.gameObject, draggedItem.RectTransform.parent);
         Destroy(ghostObject.GetComponent<GridItem>());
 
+        // Place the ghost below the dragged item so it doesn't appear above the block
+        int draggedIndex = draggedItem.RectTransform.GetSiblingIndex();
+        ghostObject.GetComponent<RectTransform>().SetSiblingIndex(draggedIndex);
+
         // Disable raycasting on all ghost images so they don't intercept input
         Image[] images = ghostObject.GetComponentsInChildren<Image>();
         foreach (var img in images)
