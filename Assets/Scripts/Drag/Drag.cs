@@ -130,7 +130,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
             targetSnap.OnBlockPlaced(this);
 
             // 检查是否完成所有
-            GameManager.Instance?.CheckComplete();
+            DragManager.Instance?.CheckComplete();
         }));
     }
 
