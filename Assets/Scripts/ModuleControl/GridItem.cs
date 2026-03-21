@@ -62,7 +62,7 @@ public class GridItem : MonoBehaviour
             {
                 int temp = x;
                 x = y;
-                y = -temp;
+                y = -temp - 1;
             }
             rotatedShape.Add(new Vector2Int(x, y));
         }
