@@ -291,7 +291,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -666,6 +666,30 @@ PrefabInstance:
     - target: {fileID: 2567432581529640014, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
       propertyPath: m_Name
       value: ModuleSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: hasCoverSkill
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: lockedSlots.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: lockedSlots.Array.data[0].x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: lockedSlots.Array.data[0].y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: lockedSlots.Array.data[1].x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6475656720488275049, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: lockedSlots.Array.data[1].y
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
