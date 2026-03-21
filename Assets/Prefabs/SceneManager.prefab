@@ -139,7 +139,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1301545918690351112}
-  - component: {fileID: 110383274677715439}
+  - component: {fileID: 2730870131911829488}
   m_Layer: 0
   m_Name: SceneManager
   m_TagString: Untagged
@@ -164,7 +164,7 @@ Transform:
   - {fileID: 4094593361573794485}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &110383274677715439
+--- !u!114 &2730870131911829488
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4789504231259437572}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77b98cb4147891848b829070018ee7eb, type: 3}
+  m_Script: {fileID: 11500000, guid: ee652d2945589594fa1488764ede5734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   nowscene: 0
@@ -293,7 +293,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4094593361573794485}
   - component: {fileID: 8042427901230232669}
-  - component: {fileID: 7435015172712189506}
+  - component: {fileID: 7899813704163797963}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -323,7 +323,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9047269060026646345}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 0cabb3fc86bb2794495f69acdd8e00f7, type: 3}
@@ -412,18 +412,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7435015172712189506
+--- !u!114 &7899813704163797963
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9047269060026646345}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f21fda9000bdd954d86525ced8d5ece1, type: 3}
+  m_Script: {fileID: 11500000, guid: d340c094432c34c47b4b5ce094c4056b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 8042427901230232669}
+  bgmSource: {fileID: 0}
   bgmVolume: 0.7
   fadeDuration: 1

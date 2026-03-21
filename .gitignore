@@ -386,5 +386,8 @@ crashlytics-build.properties
 
 *.csproj
 *.sln
-.vs/
-.idea/
+*.userprefs
+unityLibrary/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/

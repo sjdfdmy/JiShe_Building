@@ -36,6 +36,7 @@ public class InteractableManager : MonoBehaviour
     public GameObject drag;
     public GameObject shop;
     public GameObject module;
+    public GameObject purchase;
 
     private void Start()
     {
@@ -43,6 +44,7 @@ public class InteractableManager : MonoBehaviour
         drag.SetActive(false);
         //shop.SetActive(false);
         module.SetActive(false);
+        purchase.SetActive(false);
     }
 
     public void Interactable(InteractableType type)
@@ -63,15 +65,13 @@ public class InteractableManager : MonoBehaviour
                 break;
             case InteractableType.Module:
                 movemanager.enabled = true;
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
                 module.SetActive(true);
                 break;
             case InteractableType.Quest:
 
                 break;
             case InteractableType.NPC:
-
+                purchase.SetActive(true);
                 break;
         }
     }
@@ -99,7 +99,7 @@ public class InteractableManager : MonoBehaviour
 
                 break;
             case InteractableType.NPC:
-
+                purchase.SetActive(false);
                 break;
         }
     }

@@ -22,6 +22,7 @@ public class BuildingIconManager : MonoBehaviour
         }
     }
 
+    public GameObject BuildingIcon;
     public GameObject icon;
     public Button[] buttons=new Button[5];
     public GameObject[] icons=new GameObject[5];
@@ -30,15 +31,17 @@ public class BuildingIconManager : MonoBehaviour
     {
         for(int i = 0; i < icons.Length; i++)
         {
-            if (buttons[i] != null && icons[i] != null)
+            int x = i;
+            if (buttons[x] != null && icons[x] != null)
             {
-                buttons[i].onClick.AddListener(() =>
+                buttons[x].onClick.AddListener(() =>
                 {
                     icon.SetActive(true);
                     for(int j = 0; j < icons.Length; j++)
                     {
-                        if(icons[j] != null)
-                            icons[j].SetActive(i==j);
+                        int y = j;
+                        if(icons[y] != null)
+                            icons[y].SetActive(x==y);
                     }
                 });
             }
@@ -47,7 +50,8 @@ public class BuildingIconManager : MonoBehaviour
 
     void Start()
     {
-        
+        BuildingIcon.SetActive(false);
+        icon.SetActive(false);
     }
 
     void Update()

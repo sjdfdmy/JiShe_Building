@@ -427,7 +427,7 @@ public class PlayerMoveManager : MonoBehaviour
 
         if (promptText != null)
         {
-            promptText.text = $"[F] {text}";
+            promptText.text = $"{text}";
         }
     }
 
