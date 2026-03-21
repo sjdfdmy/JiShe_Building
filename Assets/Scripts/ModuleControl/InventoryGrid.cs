@@ -12,6 +12,11 @@ public class InventoryGrid : MonoBehaviour
     [Header("Cover Skill")] public bool hasCoverSkill = false;
     public int maxSharedSlots = 1;
 
+    [Header("Locked Slots")]
+    [Tooltip("Slots that are locked and cannot have blocks placed on them. Origin (0,0) is the left-down-most slot.")]
+    public List<Vector2Int> lockedSlots = new List<Vector2Int>();
+
+    private HashSet<Vector2Int> lockedSlotSet = new HashSet<Vector2Int>();
     private GridItem[,] gridData;
     private GridItem[,] overlapData;
     private List<GridItem> itemsInModule = new List<GridItem>();
@@ -22,6 +27,16 @@ public class InventoryGrid : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         gridData = new GridItem[width, height];
         overlapData = new GridItem[width, height];
+
+        // Initialize locked slot set from the inspector list
+        lockedSlotSet.Clear();
+        foreach (Vector2Int slot in lockedSlots)
+        {
+            if (slot.x >= 0 && slot.x < width && slot.y >= 0 && slot.y < height)
+                lockedSlotSet.Add(slot);
+            else
+                Debug.LogWarning($"InventoryGrid: Locked slot {slot} is out of bounds and will be ignored.");
+        }
     }
 
     public Vector2Int PositionToGrid(Vector2 anchoredPos)
@@ -59,6 +74,9 @@ public class InventoryGrid : MonoBehaviour
             int targetY = pivotPos.y + cell.y;
 
             if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
+                return false;
+
+            if (lockedSlotSet.Contains(new Vector2Int(targetX, targetY)))
                 return false;
 
             GridItem occupant = gridData[targetX, targetY];
@@ -173,6 +191,43 @@ public class InventoryGrid : MonoBehaviour
     }
 
     /// <summary>
+    /// Locks a slot at the given grid position, preventing blocks from being placed on it.
+    /// Origin (0,0) is the left-down-most slot of the module.
+    /// </summary>
+    /// <param name="slot">Grid coordinates of the slot to lock.</param>
+    public void LockSlot(Vector2Int slot)
+    {
+        if (slot.x < 0 || slot.x >= width || slot.y < 0 || slot.y >= height)
+        {
+            Debug.LogWarning($"LockSlot: Slot {slot} is out of bounds.");
+            return;
+        }
+
+        if (lockedSlotSet.Add(slot))
+            lockedSlots.Add(slot);
+    }
+
+    /// <summary>
+    /// Unlocks a previously locked slot, allowing blocks to be placed on it again.
+    /// </summary>
+    /// <param name="slot">Grid coordinates of the slot to unlock.</param>
+    public void UnlockSlot(Vector2Int slot)
+    {
+        if (lockedSlotSet.Remove(slot))
+            lockedSlots.Remove(slot);
+    }
+
+    /// <summary>
+    /// Returns whether the given slot is currently locked.
+    /// </summary>
+    /// <param name="slot">Grid coordinates of the slot to query.</param>
+    /// <returns>True if the slot is locked, false otherwise.</returns>
+    public bool IsSlotLocked(Vector2Int slot)
+    {
+        return lockedSlotSet.Contains(slot);
+    }
+
+    /// <summary>
     /// Draws the module grid in the Scene view using Gizmos.
     /// Uses the pivot location of gridOrigin as the left-down-most
     /// point so the visualization fits perfectly with the grids.
@@ -206,6 +261,18 @@ public class InventoryGrid : MonoBehaviour
         Vector3 originCenterWorld = gridOrigin.TransformPoint(new Vector3(cellSize * 0.5f, cellSize * 0.5f, 0));
         Vector3 scale = gridOrigin.lossyScale;
         Gizmos.DrawWireCube(originCenterWorld, new Vector3(cellSize * scale.x, cellSize * scale.y, 0.1f));
+
+        // Highlight locked slots
+        Gizmos.color = Color.red;
+        foreach (Vector2Int slot in lockedSlots)
+        {
+            if (slot.x >= 0 && slot.x < width && slot.y >= 0 && slot.y < height)
+            {
+                Vector3 center = gridOrigin.TransformPoint(
+                    new Vector3((slot.x + 0.5f) * cellSize, (slot.y + 0.5f) * cellSize, 0));
+                Gizmos.DrawWireCube(center, new Vector3(cellSize * scale.x, cellSize * scale.y, 0.1f));
+            }
+        }
     }
 
     /// <summary>
