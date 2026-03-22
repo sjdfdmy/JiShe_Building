@@ -669,8 +669,10 @@ MonoBehaviour:
   height: 4
   cellSize: 150
   gridOrigin: {fileID: 265309520186902375}
-  hasCoverSkill: 0
+  hasCoverSkill: 1
   maxSharedSlots: 1
+  lockedSlots:
+  - {x: 1, y: 2}
 --- !u!1 &6746990912228934374
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,7 +741,7 @@ MonoBehaviour:
   m_text: "\u9000\u51FA"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7854441b53450bf449f7bb4b2f95b6b9, type: 2}
-  m_sharedMaterial: {fileID: -6892034228411123701, guid: 7854441b53450bf449f7bb4b2f95b6b9, type: 2}
+  m_sharedMaterial: {fileID: -1881685965714916750, guid: 7854441b53450bf449f7bb4b2f95b6b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -88,6 +88,12 @@ public class PlayerSet : MonoBehaviour
         {
             sets.SetActive(true);
             Time.timeScale = 0;
+            if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game&&FindObjectOfType<PlayerMoveManager>().enabled==true)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                FindObjectOfType<PlayerMoveManager>().enabled = false;
+            }
         });
     }
 
@@ -104,12 +110,27 @@ public class PlayerSet : MonoBehaviour
                 {
                     sets.SetActive(true);
                     Time.timeScale = 0;
+                    if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game && FindObjectOfType<PlayerMoveManager>().enabled == true)
+                    {
+                        Cursor.lockState = CursorLockMode.None;
+                        Cursor.visible = true;
+                        FindObjectOfType<PlayerMoveManager>().enabled = false;
+                    }
                 });
             }
             else
             {
                 Debug.Log("No setbtn");
             }
+        }
+
+        if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game && Input.GetKey(KeyCode.Escape) && FindObjectOfType<PlayerMoveManager>().enabled == true)
+        {
+            sets.SetActive(true);
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            FindObjectOfType<PlayerMoveManager>().enabled = false;
         }
 
         if (totalvolumnslider.value != totalvolumn)
@@ -199,5 +220,11 @@ public class PlayerSet : MonoBehaviour
     {
         sets.SetActive(false);
         Time.timeScale = 1;
+        if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            FindObjectOfType<PlayerMoveManager>().enabled = true;
+        }
     }
 }

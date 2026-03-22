@@ -76,6 +76,8 @@ public class PlayerMoveManager : MonoBehaviour
     public GameObject promptPanel; // 提示面板
 
     // 内部状态
+    private Vector3 baseCameraPosition;      // 摄像机基础位置（无抖动）
+    private Quaternion baseCameraRotation;   // 摄像机基础旋转（无抖动）
     private float yaw;
     private float pitch;
     private bool cursorLocked = true;
@@ -152,35 +154,19 @@ public class PlayerMoveManager : MonoBehaviour
 
     void Update()
     {
-        // ESC键切换鼠标锁定
-        //if (Input.GetKeyDown(KeyCode.Escape))
-        //{
-        //    ToggleCursorLock();
-        //}
-
-        // 处理旋转（只在鼠标锁定时）
-        if (cursorLocked)
-        {
-            HandleRotation();
-        }
-
-        // 处理移动
+        // 处理输入和旋转
+        if (cursorLocked) HandleRotation();
         HandleMovement();
 
-        // 处理摄像机位置（防穿墙）
+        // 交互逻辑保持在Update
+        if (enableInteract) HandleInteraction();
+    }
+
+    void LateUpdate()
+    {
+        // 摄像机更新放在LateUpdate，确保角色位置已最终确定
         HandleCameraPosition();
-
-        // 处理摄像机抖动
-        if (enableCameraShake && cameraTransform != null)
-        {
-            HandleCameraShake();
-        }
-
-        // 处理交互
-        if (enableInteract)
-        {
-            HandleInteraction();
-        }
+        if (enableCameraShake) HandleCameraShake();
     }
 
     void OnDrawGizmosSelected()
@@ -271,87 +257,56 @@ public class PlayerMoveManager : MonoBehaviour
     {
         if (cameraTransform == null) return;
 
-        // 计算理想的摄像机位置（基于角色位置和偏移）
+        // 计算基础位置（不含抖动）
         Vector3 targetCameraPos = transform.position + Vector3.up * cameraLocalPos.y;
+        Quaternion targetRotation = Quaternion.Euler(pitch, yaw, 0);
 
-        // 第一人称：检测头部前方是否有墙，有则拉近摄像机
+        // 第一人称防穿墙逻辑...
         if (enableHeadCollision && cameraMaxDistance <= 0.1f)
         {
-            // 从角色头部向前发射射线检测
             Vector3 headPos = transform.position + Vector3.up * cameraLocalPos.y;
-            Vector3 lookDir = Quaternion.Euler(pitch, yaw, 0) * Vector3.forward;
+            Vector3 lookDir = targetRotation * Vector3.forward;
 
-            // 检测前方障碍物
             if (Physics.SphereCast(headPos, cameraRadius, lookDir, out RaycastHit hit, headCheckDistance, cameraCollisionLayers))
             {
-                // 前方有墙，将摄像机拉到碰撞点后方
                 float safeDistance = Mathf.Max(0, hit.distance - 0.1f);
-                Vector3 safePos = headPos + lookDir * safeDistance;
-                cameraTransform.position = safePos;
-                cameraTransform.rotation = Quaternion.Euler(pitch, yaw, 0);
-                return;
+                targetCameraPos = headPos + lookDir * safeDistance;
             }
         }
-        // 第三人称：从角色向后拉摄像机，检测中间是否有障碍
-        else if (cameraMaxDistance > 0.1f)
-        {
-            Vector3 headPos = transform.position + Vector3.up * cameraLocalPos.y;
-            Vector3 backDir = Quaternion.Euler(-pitch, -yaw, 0) * Vector3.forward;
 
-            // 向后发射射线找空位
-            float targetDistance = Mathf.Min(cameraMaxDistance, currentCameraDistance);
+        // 保存基础位置供抖动使用
+        baseCameraPosition = targetCameraPos;
+        baseCameraRotation = targetRotation;
 
-            if (Physics.SphereCast(headPos, cameraRadius, backDir, out RaycastHit hit, targetDistance, cameraCollisionLayers))
-            {
-                // 有障碍，摄像机放在碰撞点前方
-                currentCameraDistance = Mathf.Max(0.1f, hit.distance - 0.2f);
-            }
-            else
-            {
-                // 无障碍，恢复到最大距离
-                currentCameraDistance = Mathf.Lerp(currentCameraDistance, cameraMaxDistance, Time.deltaTime * 5f);
-            }
-
-            targetCameraPos = headPos + backDir * currentCameraDistance;
-        }
-
-        // 应用位置和旋转
+        // 先应用基础位置和旋转
         cameraTransform.position = targetCameraPos;
-        cameraTransform.rotation = Quaternion.Euler(pitch, yaw, 0);
+        cameraTransform.rotation = targetRotation;
     }
 
     void HandleCameraShake()
     {
         float speed = currentVelocity.magnitude;
-
-        if (speed < minShakeSpeed)
-        {
-            // 不抖动时平滑恢复，但保持防穿墙逻辑
-            shakeTimer = 0;
-            return;
-        }
+        if (speed < minShakeSpeed) return;
 
         float shakeMagnitude = speed * shakeIntensity;
-
         if (enableSprint && Input.GetKey(KeyCode.LeftShift))
-        {
             shakeMagnitude *= sprintShakeMultiplier;
-        }
 
         shakeTimer += Time.deltaTime * shakeFrequency * (speed / walkSpeed);
 
+        // 计算局部偏移
         float offsetX = Mathf.Sin(shakeTimer) * shakeMagnitude;
         float offsetY = Mathf.Cos(shakeTimer * 1.3f) * shakeMagnitude * 0.5f;
         float offsetZ = Mathf.Sin(shakeTimer * 0.7f) * shakeMagnitude * 0.3f;
 
-        // 抖动作为额外的局部偏移，在HandleCameraPosition后应用
-        // 注意：抖动可能导致穿墙，所以限制幅度
+        // 基于当前旋转的局部偏移
         Vector3 shakeOffset = cameraTransform.right * offsetX +
                              cameraTransform.up * offsetY +
                              cameraTransform.forward * offsetZ;
 
-        // 检测抖动后的位置是否安全
-        Vector3 desiredPos = cameraTransform.position + shakeOffset;
+        Vector3 desiredPos = baseCameraPosition + shakeOffset;
+
+        // 安全检查
         if (!Physics.CheckSphere(desiredPos, cameraRadius * 0.5f, cameraCollisionLayers))
         {
             cameraTransform.position = desiredPos;
