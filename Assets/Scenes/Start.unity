@@ -2723,7 +2723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba6a371ac9974240af8bb6417bd1510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BuildingIcon: {fileID: 0}
+  BuildingIcon: {fileID: 1880529584}
   icon: {fileID: 1321909097}
   buttons:
   - {fileID: 816777460}
