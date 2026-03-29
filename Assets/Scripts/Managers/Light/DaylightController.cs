@@ -5,6 +5,7 @@ public class DaylightController : MonoBehaviour
 {
     [Tooltip("拖入Directional Light，或留空自动查找")]
     public Light sunLight;
+    public float its;//光照强度
 
     [Range(0, 24)]
     public float hour = 12f;
@@ -45,7 +46,7 @@ public class DaylightController : MonoBehaviour
         sunLight.transform.rotation = Quaternion.Euler(elevation, direction, 0);
 
         // 平滑强度：夜晚微光而不是完全消失
-        sunLight.intensity = Mathf.Lerp(0.05f, 1.3f, sunIntensityFactor);
+        sunLight.intensity = Mathf.Lerp(0.05f, 1.3f, sunIntensityFactor)*its;
         sunLight.enabled = true;
 
         // 平滑颜色过渡
