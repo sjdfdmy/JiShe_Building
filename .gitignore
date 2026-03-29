@@ -391,3 +391,14 @@ unityLibrary/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
+.vsconfig
+Assembly-CSharp.csproj
+Unity.Rider.Editor.csproj
+Unity.TextMeshPro.csproj
+Unity.TextMeshPro.Editor.csproj
+Unity.TextMeshPro.Editor.Tests.csproj
+Unity.TextMeshPro.Tests.csproj
+UnityEditor.UI.csproj
+UnityEditor.UI.EditorTests.csproj
+UnityEngine.UI.csproj
+UnityEngine.UI.Tests.csproj
