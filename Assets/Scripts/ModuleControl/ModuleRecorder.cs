@@ -8,14 +8,14 @@ using UnityEngine;
 [Serializable]
 public class MaterialEntry
 {
-    public string name;
+    public string itemName;
     public MaterialKind kind;
     public Vector2Int position;
     public int rotationStep;
 
-    public MaterialEntry(string name, MaterialKind kind, Vector2Int position, int rotationStep)
+    public MaterialEntry(string itemName, MaterialKind kind, Vector2Int position, int rotationStep)
     {
-        this.name = name;
+        this.itemName = itemName;
         this.kind = kind;
         this.position = position;
         this.rotationStep = rotationStep;
