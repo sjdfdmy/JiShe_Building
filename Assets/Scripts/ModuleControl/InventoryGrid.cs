@@ -228,6 +228,31 @@ public class InventoryGrid : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns a read-only copy of all items currently placed in the module.
+    /// </summary>
+    public List<GridItem> GetItemsInModule()
+    {
+        return new List<GridItem>(itemsInModule);
+    }
+
+    /// <summary>
+    /// Removes every item from the module grid and resets each one
+    /// back to its original spawn position and rotation.
+    /// </summary>
+    public void ClearAllItems()
+    {
+        // Iterate over a copy because RemoveItem mutates itemsInModule
+        List<GridItem> snapshot = new List<GridItem>(itemsInModule);
+        foreach (GridItem item in snapshot)
+        {
+            RemoveItem(item);
+            item.currentRotationStep = 0;
+            item.RectTransform.anchoredPosition = item.spawnPosition;
+            item.RectTransform.localRotation = item.spawnRotation;
+        }
+    }
+
+    /// <summary>
     /// Draws the module grid in the Scene view using Gizmos.
     /// Uses the pivot location of gridOrigin as the left-down-most
     /// point so the visualization fits perfectly with the grids.
