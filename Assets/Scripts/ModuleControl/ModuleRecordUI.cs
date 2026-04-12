@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,13 +35,13 @@ public class ModuleRecordUI : MonoBehaviour
 
     [Header("Value Texts")]
     [Tooltip("Text field that displays the elegance value.")]
-    public Text eleganceText;
+    public TMP_Text eleganceText;
 
     [Tooltip("Text field that displays the stability value.")]
-    public Text stabilityText;
+    public TMP_Text stabilityText;
 
     [Tooltip("Text field that displays the sum value.")]
-    public Text sumText;
+    public TMP_Text sumText;
 
     [Header("Bar Settings")]
     [Tooltip("The full width (in pixels) a bar should have when the value equals its max.")]
