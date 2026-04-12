@@ -249,7 +249,7 @@ public class InventoryGrid : MonoBehaviour
             item.currentRotationStep = 0;
             item.RectTransform.anchoredPosition = item.spawnPosition;
             item.RectTransform.localRotation = item.spawnRotation;
-        }
+        } 
     }
 
     /// <summary>
