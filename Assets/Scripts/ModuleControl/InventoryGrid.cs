@@ -236,8 +236,7 @@ public class InventoryGrid : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes every item from the module grid and resets each one
-    /// back to its original spawn position and rotation.
+    /// Removes every item from the module grid and destroys their GameObjects.
     /// </summary>
     public void ClearAllItems()
     {
@@ -246,10 +245,8 @@ public class InventoryGrid : MonoBehaviour
         foreach (GridItem item in snapshot)
         {
             RemoveItem(item);
-            item.currentRotationStep = 0;
-            item.RectTransform.anchoredPosition = item.spawnPosition;
-            item.RectTransform.localRotation = item.spawnRotation;
-        }
+            Destroy(item.gameObject);
+        } 
     }
 
     /// <summary>
