@@ -1239,6 +1239,7 @@ GameObject:
   - component: {fileID: 691007646}
   - component: {fileID: 691007648}
   - component: {fileID: 691007649}
+  - component: {fileID: 691007650}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1304,7 +1305,7 @@ MonoBehaviour:
   playerCamera: {fileID: 1343169578}
   walkSpeed: 8
   sprintSpeed: 14
-  mouseSensitivity: 2
+  mouseSensitivity: 3.43
   minPitch: -80
   maxPitch: 80
   invertMouseY: 0
