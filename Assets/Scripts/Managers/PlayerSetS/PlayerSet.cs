@@ -24,12 +24,16 @@ public class PlayerSet : MonoBehaviour
     [Range(0, 100)]
     public float voiceeffect;
     public bool isvoiceeffect;
+    [Header("鼠标灵敏度")]
+    [Range(0, 100)]
+    public float mouse;
 
     public Button yesbackhome;//确认返回主页面按钮
     public Button setbtn;//打开设置按钮
     private Slider totalvolumnslider;//总音量滑动条
     private Slider volumnslider;//音量滑动条
     private Slider voiceeffectslider;//音效滑动条
+    private Slider mouseslider;//鼠标灵敏度滑动条
     private Button istotalvolumnbutton;//是否关闭总音量按钮
     private Button isvolumnbutton;//是否关闭音量按钮
     private Button isvoiceeffectbutton;//是否关闭音效按钮
@@ -65,9 +69,10 @@ public class PlayerSet : MonoBehaviour
         totalvolumnslider = sets.transform.GetChild(2).GetChild(0).GetComponent<Slider>();
         volumnslider = sets.transform.GetChild(2).GetChild(1).GetComponent<Slider>();
         voiceeffectslider = sets.transform.GetChild(2).GetChild(2).GetComponent<Slider>();
-        istotalvolumnbutton = sets.transform.GetChild(2).GetChild(3).GetComponent<Button>();
-        isvolumnbutton = sets.transform.GetChild(2).GetChild(4).GetComponent<Button>();
-        isvoiceeffectbutton = sets.transform.GetChild(2).GetChild(5).GetComponent<Button>();
+        mouseslider = sets.transform.GetChild(2).GetChild(3).GetComponent<Slider>();
+        istotalvolumnbutton = sets.transform.GetChild(2).GetChild(4).GetComponent<Button>();
+        isvolumnbutton = sets.transform.GetChild(2).GetChild(5).GetComponent<Button>();
+        isvoiceeffectbutton = sets.transform.GetChild(2).GetChild(6).GetComponent<Button>();
 
         sets.SetActive(false);
         ifbackhome.SetActive(false);
@@ -75,20 +80,19 @@ public class PlayerSet : MonoBehaviour
         totalvolumn = PlayerPrefs.GetFloat("TotalVolumn", 100f);
         volumn = PlayerPrefs.GetFloat("Volumn", 100f);
         voiceeffect = PlayerPrefs.GetFloat("VoiceEffect", 100f);
-        istotalvolumn = PlayerPrefs.GetInt("IsTotalVolumn", 1) == 1;
-        isvolumn = PlayerPrefs.GetInt("IsVolumn", 1) == 1;
-        isvoiceeffect = PlayerPrefs.GetInt("IsVoiceEffect", 1) == 1;
+        mouse = PlayerPrefs.GetFloat("MouseSensitivity", 50f);
 
         totalvolumnslider.value = istotalvolumn ? totalvolumn : 0;
         volumnslider.value = isvolumn ? volumn : 0;
         voiceeffectslider.value = isvoiceeffect ? voiceeffect : 0;
+        mouseslider.value = mouse;
 
         setbtn.onClick.RemoveAllListeners();
         setbtn.onClick.AddListener(() =>
         {
             sets.SetActive(true);
             Time.timeScale = 0;
-            if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game&&FindObjectOfType<PlayerMoveManager>().enabled==true)
+            if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game && FindObjectOfType<PlayerMoveManager>().enabled == true)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
@@ -138,7 +142,7 @@ public class PlayerSet : MonoBehaviour
             totalvolumn = totalvolumnslider.value;
             istotalvolumn = totalvolumn > 0;
             PlayerPrefs.DeleteKey("IsTotalVolumn");
-            PlayerPrefs.SetInt("IsTotalVolumn", istotalvolumn?1:0);
+            PlayerPrefs.SetInt("IsTotalVolumn", istotalvolumn ? 1 : 0);
             PlayerPrefs.Save();
 
             if (istotalvolumn)
@@ -149,12 +153,12 @@ public class PlayerSet : MonoBehaviour
             }
         }
 
-        if(volumnslider.value != volumn)
+        if (volumnslider.value != volumn)
         {
             volumn = volumnslider.value;
             isvolumn = volumn > 0;
             PlayerPrefs.DeleteKey("IsVolumn");
-            PlayerPrefs.SetInt("IsVolumn", isvolumn?1:0);
+            PlayerPrefs.SetInt("IsVolumn", isvolumn ? 1 : 0);
             PlayerPrefs.Save();
 
             if (isvolumn)
@@ -165,12 +169,12 @@ public class PlayerSet : MonoBehaviour
             }
         }
 
-        if(voiceeffectslider.value != voiceeffect)
+        if (voiceeffectslider.value != voiceeffect)
         {
             voiceeffect = voiceeffectslider.value;
             isvoiceeffect = voiceeffect > 0;
             PlayerPrefs.DeleteKey("IsVoiceEffect");
-            PlayerPrefs.SetInt("IsVoiceEffect", isvoiceeffect?1:0);
+            PlayerPrefs.SetInt("IsVoiceEffect", isvoiceeffect ? 1 : 0);
             PlayerPrefs.Save();
 
             if (isvoiceeffect)
@@ -181,16 +185,33 @@ public class PlayerSet : MonoBehaviour
             }
         }
 
-        istotalvolumnbutton.image.sprite = istotalvolumn?openvoice:closevoice;
+        if (mouseslider.value != mouse)
+        {
+            mouse = mouseslider.value;
+            PlayerPrefs.DeleteKey("MouseSensitivity");
+            PlayerPrefs.SetFloat("MouseSensitivity", mouse);
+            PlayerPrefs.Save();
+
+            // 应用鼠标灵敏度到 PlayerMoveManager
+            PlayerMoveManager moveManager = FindObjectOfType<PlayerMoveManager>();
+            if (moveManager != null)
+            {
+                // 将 0-100 的范围映射到 0.1f - 5f 的灵敏度范围
+                float mappedSensitivity = Mathf.Lerp(0.1f, 5f, mouse / 100f);
+                moveManager.SetMouseSensitivity(mappedSensitivity);
+            }
+        }
+
+        istotalvolumnbutton.image.sprite = istotalvolumn ? openvoice : closevoice;
         isvolumnbutton.image.sprite = isvolumn ? openvoice : closevoice;
         isvoiceeffectbutton.image.sprite = isvoiceeffect ? openvoice : closevoice;
     }
 
     public void ClickTotal()
     {
-        istotalvolumn=!istotalvolumn;
-        totalvolumnslider.value = istotalvolumn ? PlayerPrefs.GetFloat("TotalVolumn",100) : 0;
-        if (totalvolumnslider.value <1&&istotalvolumn)
+        istotalvolumn = !istotalvolumn;
+        totalvolumnslider.value = istotalvolumn ? PlayerPrefs.GetFloat("TotalVolumn", 100) : 0;
+        if (totalvolumnslider.value < 1 && istotalvolumn)
         {
             totalvolumnslider.value = 1;
         }
@@ -200,7 +221,7 @@ public class PlayerSet : MonoBehaviour
     {
         isvolumn = !isvolumn;
         volumnslider.value = isvolumn ? PlayerPrefs.GetFloat("Volumn", 100) : 0;
-        if (volumnslider.value <1 && isvolumn)
+        if (volumnslider.value < 1 && isvolumn)
         {
             volumnslider.value = 1;
         }
@@ -210,7 +231,7 @@ public class PlayerSet : MonoBehaviour
     {
         isvoiceeffect = !isvoiceeffect;
         voiceeffectslider.value = isvoiceeffect ? PlayerPrefs.GetFloat("VoiceEffect", 100) : 0;
-        if (voiceeffectslider.value <1 && isvoiceeffect)
+        if (voiceeffectslider.value < 1 && isvoiceeffect)
         {
             voiceeffectslider.value = 1;
         }
