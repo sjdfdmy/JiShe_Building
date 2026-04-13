@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ModuleObj : MonoBehaviour,IInteractable
 {
+    public GameObject loading;
+
     public string GetInteractPrompt()
     {
         return "按 F 键进入泥塑界面";
@@ -14,6 +16,6 @@ public class ModuleObj : MonoBehaviour,IInteractable
         {
             return;
         }
-        InteractableManager.Instance.Interactable(InteractableManager.InteractableType.Module);
+        InteractableManager.Instance.Interactable(InteractableManager.InteractableType.Module,loading);
     }
 }
