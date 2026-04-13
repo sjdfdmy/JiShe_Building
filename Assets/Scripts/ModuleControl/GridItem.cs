@@ -5,6 +5,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public class GridItem : MonoBehaviour
 {
+    [Tooltip("Assign a MaterialData asset to auto-populate name, shape, and stats.")]
+    public MaterialData materialData;
+
     public string itemName;
     [Tooltip("Include (0,0) for the pivot, and relative coordinates for children, e.g., (1,0)")]
     public List<Vector2Int> localCells = new List<Vector2Int> { new Vector2Int(0, 0) };
@@ -22,6 +25,21 @@ public class GridItem : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
         image = GetComponent<Image>();
+        ApplyMaterialData();
+    }
+
+    /// <summary>
+    /// Applies the assigned MaterialData to this GridItem, setting the item name
+    /// and cell shape from the ScriptableObject so they don't need to be set manually.
+    /// </summary>
+    public void ApplyMaterialData()
+    {
+        if (materialData != null)
+        {
+            itemName = materialData.materialName;
+            if (materialData.size != null && materialData.size.Count > 0)
+                localCells = new List<Vector2Int>(materialData.size);
+        }
     }
 
     void Start()
