@@ -150,6 +150,12 @@ public class PlayerMoveManager : MonoBehaviour
         {
             interactPromptUI.SetActive(false);
         }
+
+        // 加载保存的鼠标灵敏度
+        if (PlayerPrefs.HasKey("MouseSensitivity"))
+        {
+            mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity");
+        }
     }
 
     void Update()
@@ -413,6 +419,13 @@ public class PlayerMoveManager : MonoBehaviour
     #endregion
 
     #region 公共接口
+
+    public void SetMouseSensitivity(float sensitivity)
+    {
+        mouseSensitivity = sensitivity;
+        PlayerPrefs.SetFloat("MouseSensitivity", sensitivity);
+        PlayerPrefs.Save();
+    }
 
     public void Teleport(Vector3 position, float? newYaw = null, float? newPitch = null)
     {

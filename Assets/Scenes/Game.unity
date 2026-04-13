@@ -1078,6 +1078,7 @@ GameObject:
   - component: {fileID: 691007646}
   - component: {fileID: 691007648}
   - component: {fileID: 691007649}
+  - component: {fileID: 691007650}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1143,7 +1144,7 @@ MonoBehaviour:
   playerCamera: {fileID: 1343169578}
   walkSpeed: 5
   sprintSpeed: 10
-  mouseSensitivity: 2
+  mouseSensitivity: 3.43
   minPitch: -80
   maxPitch: 80
   invertMouseY: 0
@@ -1170,6 +1171,21 @@ MonoBehaviour:
   enableInteract: 1
   promptText: {fileID: 1334445317}
   promptPanel: {fileID: 634768862}
+--- !u!114 &691007650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691007645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7526ce70eb4206143ae80a530a87061d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkInterval: 0.5
+  sprintInterval: 0.3
+  minMoveDistance: 0.05
 --- !u!64 &725067417
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2166,17 +2182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
 --- !u!64 &1083844843
 MeshCollider:
   m_ObjectHideFlags: 0
