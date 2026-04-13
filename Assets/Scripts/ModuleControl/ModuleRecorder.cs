@@ -56,6 +56,9 @@ public class ModuleRecorder : MonoBehaviour
     [Tooltip("Reference to the InventoryGrid that holds the placed materials.")]
     public InventoryGrid inventoryGrid;
 
+    [Tooltip("Optional popup UI that displays elegance / stability / sum bars after recording.")]
+    public ModuleRecordUI recordUI;
+
     /// <summary>
     /// The most recent module record. Accessible from any script via
     /// ModuleRecorder.LastRecord. Null until the first recording is made.
@@ -74,8 +77,16 @@ public class ModuleRecorder : MonoBehaviour
             return;
         }
 
-        ModuleRecord record = new ModuleRecord();
         List<GridItem> items = inventoryGrid.GetItemsInModule();
+
+        // Do nothing when the module is empty
+        if (items.Count == 0)
+        {
+            Debug.Log("[ModuleRecorder] Module is empty – nothing to record.");
+            return;
+        }
+
+        ModuleRecord record = new ModuleRecord();
 
         foreach (GridItem item in items)
         {
@@ -106,5 +117,9 @@ public class ModuleRecorder : MonoBehaviour
 
         Debug.Log($"[ModuleRecorder] Recorded {record.materials.Count} material(s). " +
                   $"Elegance: {record.totalElegance}, Stability: {record.totalStability}");
+
+        // Show the result popup UI if assigned
+        if (recordUI != null)
+            recordUI.Show(record.totalElegance, record.totalStability);
     }
 }
