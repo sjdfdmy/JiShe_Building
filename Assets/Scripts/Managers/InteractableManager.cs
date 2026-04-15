@@ -46,7 +46,7 @@ public class InteractableManager : MonoBehaviour
 
     [Header("动画参数")]
     [SerializeField] private float slideInDuration = 0.5f;   // 滑入时间
-    [SerializeField] private float slideOutDuration = 0.6f;  // 滑出时间
+    [SerializeField] private float slideOutDuration = 0.5f;  // 滑出时间
     [SerializeField] private AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float offScreenOffset = 2000f;
 

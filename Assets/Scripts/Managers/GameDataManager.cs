@@ -25,6 +25,15 @@ public class GameDataManager : MonoBehaviour
     [Header("Persistence")]
     public Vector3 lastPlayerPosition;
     public string currentSceneName;
+
+    [System.Serializable]
+    public class ObjData
+    {
+        public MaterialData objdata;
+        public int num;
+    }
+
+    public List<ObjData> objs;
     
     [Header("���")]
     public Transform player;
