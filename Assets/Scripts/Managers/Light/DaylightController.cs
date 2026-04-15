@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing; // Post-Processing Stack v2
 
 [ExecuteAlways]
 public class DaylightController : MonoBehaviour
 {
     [Tooltip("拖入Directional Light，或留空自动查找")]
     public Light sunLight;
-    public float its;//光照强度
+    public float its;
 
     [Range(0, 24)]
     public float hour = 12f;
@@ -15,12 +16,60 @@ public class DaylightController : MonoBehaviour
     public float direction = 180f;
 
     [Header("时间缩放")]
-    [Tooltip("现实中1秒 = 游戏中多少秒")]
     public float timeScale = 60f;
+
+    [Header("后处理控制 - Post Processing Stack v2")]
+    [Tooltip("场景中的Post Process Volume (Global)")]
+    public PostProcessVolume postProcessVolume;
+
+    [Tooltip("白天曝光值")]
+    public float dayPostExposure = 0f;
+
+    [Tooltip("夜晚曝光值 - 调低压暗烘焙贴图")]
+    public float nightPostExposure = -2f;
+
+    [Header("室内灯光")]
+    public Light[] indoorLights;
+    public float nightIndoorMult = 2.5f;
+    public float dayIndoorMult = 0.2f;
+
+    private float[] originalIntensities;
+    private ColorGrading colorGrading;
+    private float currentPostExposure;
 
     void OnEnable()
     {
         FindSun();
+        SetupPostProcess();
+        CacheIndoorLights();
+    }
+
+    void SetupPostProcess()
+    {
+        if (postProcessVolume == null)
+        {
+            Debug.LogWarning("请把 Post Process Volume 拖到脚本上！");
+            return;
+        }
+
+        // 获取 Color Grading 组件（包含 Post Exposure）
+        if (postProcessVolume.profile.TryGetSettings(out colorGrading))
+        {
+            Debug.Log("成功绑定 Color Grading");
+        }
+        else
+        {
+            Debug.LogWarning("Post Process Volume 缺少 Color Grading！请手动添加");
+        }
+    }
+
+    void CacheIndoorLights()
+    {
+        if (indoorLights == null || indoorLights.Length == 0) return;
+        originalIntensities = new float[indoorLights.Length];
+        for (int i = 0; i < indoorLights.Length; i++)
+            if (indoorLights[i] != null)
+                originalIntensities[i] = indoorLights[i].intensity;
     }
 
     void Update()
@@ -28,62 +77,97 @@ public class DaylightController : MonoBehaviour
         hour += (Time.deltaTime * timeScale) / 3600f;
         if (hour >= 24f) hour = 0f;
 
-        if (sunLight == null || sunLight.type != LightType.Directional)
-        {
-            FindSun();
-            if (sunLight == null) return;
-        }
+        if (sunLight == null) FindSun();
+        if (sunLight == null) return;
 
-        // 全天计算太阳高度（包括夜晚负值）
+        float sunFactor = GetSunFactor();
+
+        UpdateSun(sunFactor);
+        UpdatePostExposure(sunFactor);
+        UpdateIndoorLights(sunFactor);
+    }
+
+    float GetSunFactor()
+    {
         float t = (hour - 5f) / 14f;
-        float height = Mathf.Sin(t * Mathf.PI);
+        return Mathf.Clamp01(Mathf.Sin(t * Mathf.PI));
+    }
 
-        // 平滑限制到0-1范围（夜晚为负值， clamp后变暗）
-        float sunIntensityFactor = Mathf.Clamp01(height);
-
-        // 应用旋转（允许夜晚负角度，太阳在地平线下）
-        float elevation = height * 80f;
+    void UpdateSun(float sunFactor)
+    {
+        float elevation = (sunFactor * 2f - 1f) * 80f;
         sunLight.transform.rotation = Quaternion.Euler(elevation, direction, 0);
+        sunLight.intensity = Mathf.Lerp(0f, 1.3f, sunFactor) * its;
+        sunLight.enabled = sunFactor > 0.05f;
 
-        // 平滑强度：夜晚微光而不是完全消失
-        sunLight.intensity = Mathf.Lerp(0.05f, 1.3f, sunIntensityFactor)*its;
-        sunLight.enabled = true;
+        Color night = new Color(0.1f, 0.15f, 0.3f);
+        Color sunrise = new Color(1f, 0.5f, 0.2f);
+        Color noon = new Color(1f, 0.98f, 0.95f);
 
-        // 平滑颜色过渡
-        Color nightColor = new Color(0.1f, 0.15f, 0.3f);  // 夜晚深蓝
-        Color sunriseColor = new Color(1f, 0.5f, 0.2f);     // 日出橙红
-        Color noonColor = new Color(1f, 0.98f, 0.95f);      // 正午白偏暖
+        sunLight.color = sunFactor < 0.2f
+            ? Color.Lerp(night, sunrise, sunFactor * 5f)
+            : Color.Lerp(sunrise, noon, (sunFactor - 0.2f) * 1.25f);
+    }
 
-        if (sunIntensityFactor < 0.1f)
+    /// <summary>
+    /// 核心：通过 Color Grading 的 Post Exposure 控制整体亮度
+    /// </summary>
+    void UpdatePostExposure(float sunFactor)
+    {
+        if (colorGrading == null) return;
+
+        float targetExp = Mathf.Lerp(nightPostExposure, dayPostExposure, sunFactor);
+        currentPostExposure = Mathf.Lerp(currentPostExposure, targetExp, Time.deltaTime * 2f);
+
+        // Post-Processing Stack v2 的设置方式
+        colorGrading.postExposure.value = currentPostExposure;
+        colorGrading.postExposure.overrideState = true;
+    }
+
+    void UpdateIndoorLights(float sunFactor)
+    {
+        if (indoorLights == null || originalIntensities == null) return;
+
+        float mult = Mathf.Lerp(nightIndoorMult, dayIndoorMult, sunFactor);
+
+        for (int i = 0; i < indoorLights.Length; i++)
         {
-            // 夜晚到日出前
-            sunLight.color = Color.Lerp(nightColor, sunriseColor, sunIntensityFactor * 10f);
-        }
-        else
-        {
-            // 日出到正午到日落
-            sunLight.color = Color.Lerp(sunriseColor, noonColor, sunIntensityFactor);
+            if (indoorLights[i] == null) continue;
+
+            float target = originalIntensities[i] * mult;
+            indoorLights[i].intensity = Mathf.Lerp(indoorLights[i].intensity, target, Time.deltaTime * 3f);
+
+            // 夜晚变暖光
+            if (sunFactor < 0.3f)
+                indoorLights[i].color = Color.Lerp(indoorLights[i].color, new Color(1f, 0.8f, 0.6f), Time.deltaTime * 2f);
         }
     }
 
     void FindSun()
     {
-        if (RenderSettings.sun != null)
+        if (RenderSettings.sun != null) sunLight = RenderSettings.sun;
+        else
         {
-            sunLight = RenderSettings.sun;
-            return;
+            foreach (var l in FindObjectsOfType<Light>())
+                if (l.type == LightType.Directional) { sunLight = l; return; }
         }
-
-        Light[] lights = FindObjectsOfType<Light>();
-        foreach (Light l in lights)
-        {
-            if (l.type == LightType.Directional)
-            {
-                sunLight = l;
-                return;
-            }
-        }
-
-        Debug.LogWarning("未找到Directional Light，请手动拖到Sun Light槽位");
     }
+
+    [ContextMenu("自动收集室内灯光")]
+    void AutoCollect()
+    {
+        var list = new System.Collections.Generic.List<Light>();
+        foreach (var l in FindObjectsOfType<Light>())
+            if (l.type != LightType.Directional && l != sunLight) list.Add(l);
+
+        indoorLights = list.ToArray();
+        CacheIndoorLights();
+        Debug.Log($"收集到 {indoorLights.Length} 个室内灯");
+    }
+
+    [ContextMenu("测试夜晚 (23点)")]
+    void TestNight() { hour = 23f; }
+
+    [ContextMenu("测试白天 (12点)")]
+    void TestDay() { hour = 12f; }
 }
