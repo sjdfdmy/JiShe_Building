@@ -23,7 +23,7 @@ public class StartManager : MonoBehaviour
     }
 
     public Button startbutton;
-    public Button settingbutton;
+    //public Button settingbutton;
     public Button exitbutton;
 
     private void Awake()
@@ -32,10 +32,10 @@ public class StartManager : MonoBehaviour
         {
             Scenemanager.Instance.LoadScene(Scenemanager.Scenes.Game);
         });
-        settingbutton.onClick.AddListener(() =>
-        {
+        //settingbutton.onClick.AddListener(() =>
+        //{
             
-        });
+        //});
         exitbutton.onClick.AddListener(() =>
         {
             Application.Quit();

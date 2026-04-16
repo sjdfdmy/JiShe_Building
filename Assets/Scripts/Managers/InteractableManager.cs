@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class InteractableManager : MonoBehaviour
@@ -89,7 +90,10 @@ public class InteractableManager : MonoBehaviour
 
     public void Interactable(InteractableType type, GameObject loading)
     {
-        StartCoroutine(Loading(type,loading,1.2f));
+        UnityEvent fun = new UnityEvent();
+        fun.AddListener(() => Interactable(type));
+        TransitionManager.Instance.Loading(loading, 1.2f,fun);
+        //StartCoroutine(Loading(type,loading,1.2f));
         movemanager.enabled = false;
     }
 

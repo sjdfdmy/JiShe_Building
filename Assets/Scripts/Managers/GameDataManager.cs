@@ -32,7 +32,7 @@ public class GameDataManager : MonoBehaviour
         public MaterialData objdata;
         public int num;
     }
-
+    public int playermoney;
     public List<ObjData> objs;
     
     [Header("���")]

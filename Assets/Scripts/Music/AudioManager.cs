@@ -4,6 +4,21 @@ using UnityEngine.UI;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
+    public static AudioManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<AudioManager>();
+                if (instance == null)
+                {
+                    Debug.Log("No AudioManager found in the scene!");
+                }
+            }
+            return instance;
+        }
+    }
 
     [Header("音频源组件")]
     public AudioSource musicSource;
