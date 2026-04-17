@@ -49,7 +49,7 @@ public class TransitionManager : MonoBehaviour
     IEnumerator Loadings(GameObject loading, float time,UnityEvent fun)
     {
         TextMeshProUGUI loadingText;
-        RectTransform loadingSpinner;
+        Animator[] animations;
         GameObject loadingObj = Instantiate(loading, transform);
         loadingObj.SetActive(true);
 
@@ -67,7 +67,7 @@ public class TransitionManager : MonoBehaviour
 
         // 获取LoadingText
             loadingText = loadingObj.GetComponentInChildren<TextMeshProUGUI>();
-            //loadingSpinner=loadingObj.GetComponentInChildren<RectTransform>();
+            animations = GetComponentsInChildren<Animator>();
 
         // 激活Loading元素
         if (loadingText != null)
@@ -105,14 +105,15 @@ public class TransitionManager : MonoBehaviour
             loadingText.alpha = 1;
         }
 
-        if (fun != null)
+        yield return new WaitForSeconds(0.2f);
+        fun?.Invoke();
+        foreach(var anim in animations)
         {
-            fun.Invoke();
+            anim.SetTrigger("StartAni");
         }
-
         // ========== 阶段三：等待时间 ==========
         elapsed = 0;
-        while (elapsed < time)
+        while (elapsed < time-0.2f)
         {
             elapsed += Time.deltaTime;
             //if (loadingSpinner != null)
