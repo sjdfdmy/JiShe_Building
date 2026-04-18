@@ -113,7 +113,6 @@ public class InteractableManager : MonoBehaviour
 
         // 初始位置在右侧外
         panel.anchoredPosition = hiddenRight;
-
         // 获取LoadingText
         if (loadingText == null)
             loadingText = loadingObj.GetComponentInChildren<TextMeshProUGUI>();
