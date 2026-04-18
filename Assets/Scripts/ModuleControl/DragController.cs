@@ -57,7 +57,7 @@ public class DragController : MonoBehaviour
 
         foreach (var result in results)
         {
-            GridItem item = result.gameObject.GetComponent<GridItem>();
+            GridItem item = result.gameObject.GetComponentInParent<GridItem>();
             if (item != null)
             {
                 draggedItem = item;
