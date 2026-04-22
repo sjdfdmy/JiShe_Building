@@ -22,10 +22,6 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
-    [Header("Persistence")]
-    public Vector3 lastPlayerPosition;
-    public string currentSceneName;
-
     [System.Serializable]
     public class ObjData
     {
@@ -60,30 +56,7 @@ public class GameDataManager : MonoBehaviour
 
     void Update()
     {
-        if (player != null)
-        {
-            lastPlayerPosition = player.position;
-        }
-        
-        string activeScene = SceneManager.GetActiveScene().name;
-        if (currentSceneName != activeScene)
-        {
-            currentSceneName = activeScene;
-            Debug.Log($"Scene changed to: {currentSceneName}");
-        }
+
     }
     
-    public void SavePlayerData()
-    {
-        if (player != null)
-        {
-            lastPlayerPosition = player.position;
-        }
-        currentSceneName = SceneManager.GetActiveScene().name;
-        
-        PlayerPrefs.SetFloat("PlayerX", lastPlayerPosition.x);
-        PlayerPrefs.SetFloat("PlayerY", lastPlayerPosition.y);
-        PlayerPrefs.SetString("SavedScene", currentSceneName);
-        PlayerPrefs.Save();
-    }
 }
