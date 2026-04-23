@@ -24,6 +24,7 @@ public class MaterialData : ScriptableObject
     public int simvalravity;
     [Range(0, 100)]
     public int highvalravity;
+    public GameObject objUI;
 
     [Tooltip("The shape of this material in grid cells. Include (0,0) for the pivot and relative coordinates for additional cells.")]
     public List<Vector2Int> size = new List<Vector2Int> { new Vector2Int(0, 0) };
@@ -33,4 +34,7 @@ public class MaterialData : ScriptableObject
 
     [Tooltip("Stability value used for calculating the output of the module.")]
     public float stability;
+
+    [TextArea]
+    public string description;
 }

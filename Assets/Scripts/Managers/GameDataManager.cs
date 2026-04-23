@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,9 +29,13 @@ public class GameDataManager : MonoBehaviour
         public MaterialData objdata;
         public int num;
     }
+    public GameObject cursor;
     public int playermoney;
-    public List<ObjData> objs;
-    
+    public List<MaterialData> materials;
+    public List<ObjData> bags;
+    [Header("UI引用")]
+    public TextMeshProUGUI promptText;      // UI Text组件
+    public GameObject promptPanel; // 提示面板
     [Header("���")]
     public Transform player;
 
@@ -50,7 +55,7 @@ public class GameDataManager : MonoBehaviour
 
     void Start()
     {
-
+        cursor.SetActive(true);
     }
 
 
@@ -59,4 +64,31 @@ public class GameDataManager : MonoBehaviour
 
     }
     
+    public MaterialData GetMaterialData(int type)
+    {
+        int allvalue = 0;
+        System.Func<MaterialData, int> GetRavity = type switch
+        {
+            0 => m => m.simvalravity,
+            1 => m => m.highvalravity,
+            _ => throw new System.ArgumentException("Invalid type")
+        };
+
+                foreach(var i in materials)
+                {
+            allvalue += GetRavity(i);
+                }
+        int aim = Random.Range(1, allvalue + 1);
+
+                foreach (var i in materials)
+                {
+                    aim -= GetRavity(i);
+                    if (aim <= 0)
+                    {
+                        return i;
+                    }
+                }
+        Debug.Log("Error!");
+        return null;
+    }
 }

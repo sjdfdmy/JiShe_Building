@@ -18,6 +18,8 @@ MonoBehaviour:
   value: 1000
   simvalravity: 20
   highvalravity: 0
+  objUI: {fileID: 433518150120224127, guid: ebbfe073d95fd5a4c932b7a5f98b428c, type: 3}
   size: []
   elegance: 5
   stability: 0
+  description: "\u54C1\u8D28\u8F83\u5DEE\u7684\u67D3\u8272\u6750\u6599\u3002"

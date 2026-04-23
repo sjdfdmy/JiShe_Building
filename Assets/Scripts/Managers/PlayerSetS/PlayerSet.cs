@@ -95,7 +95,7 @@ public class PlayerSet : MonoBehaviour
             if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game && FindObjectOfType<PlayerMoveManager>().enabled == true)
             {
                 Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
+                GameDataManager.Instance.cursor.SetActive(true);
                 FindObjectOfType<PlayerMoveManager>().enabled = false;
             }
         });
@@ -117,7 +117,7 @@ public class PlayerSet : MonoBehaviour
                     if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game && FindObjectOfType<PlayerMoveManager>().enabled == true)
                     {
                         Cursor.lockState = CursorLockMode.None;
-                        Cursor.visible = true;
+                        GameDataManager.Instance.cursor.SetActive(true);
                         FindObjectOfType<PlayerMoveManager>().enabled = false;
                     }
                 });
@@ -133,7 +133,7 @@ public class PlayerSet : MonoBehaviour
             sets.SetActive(true);
             Time.timeScale = 0;
             Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            GameDataManager.Instance.cursor.SetActive(true);
             FindObjectOfType<PlayerMoveManager>().enabled = false;
         }
 
@@ -244,7 +244,7 @@ public class PlayerSet : MonoBehaviour
         if (Scenemanager.Instance.nowscene == Scenemanager.Scenes.Game)
         {
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            GameDataManager.Instance.cursor.SetActive(false);
             FindObjectOfType<PlayerMoveManager>().enabled = true;
         }
     }
