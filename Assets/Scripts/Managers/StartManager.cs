@@ -21,7 +21,10 @@ public class StartManager : MonoBehaviour
             return instance;
         }
     }
-
+    public GameObject startall;
+    public GameObject buttons;
+    public GameObject title;
+    public GameObject littletip;
     public Button startbutton;
     //public Button settingbutton;
     public Button exitbutton;
@@ -44,11 +47,20 @@ public class StartManager : MonoBehaviour
 
     void Start()
     {
-        
+        buttons.SetActive(false);
+        title.SetActive(true);
+        littletip.SetActive(true);
     }
 
     void Update()
     {
         
     }
+
+    public void EnterStart()
+    {
+        startall.GetComponent<Animator>().SetTrigger("Start");
+        littletip.SetActive(false);
+    }
+
 }

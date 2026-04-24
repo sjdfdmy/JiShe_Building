@@ -71,10 +71,6 @@ public class PlayerMoveManager : MonoBehaviour
     public bool enableCameraShake = true;
     public bool enableInteract = true;
 
-    [Header("UI引用")]
-    public TextMeshProUGUI promptText;      // UI Text组件
-    public GameObject promptPanel; // 提示面板
-
     // 内部状态
     private Vector3 baseCameraPosition;      // 摄像机基础位置（无抖动）
     private Quaternion baseCameraRotation;   // 摄像机基础旋转（无抖动）
@@ -135,7 +131,7 @@ public class PlayerMoveManager : MonoBehaviour
         {
             controller = GetComponent<CharacterController>();
         }
-
+        GameDataManager.Instance.player = transform;
         // 初始化旋转角度
         Vector3 euler = transform.eulerAngles;
         yaw = euler.y;
@@ -156,6 +152,7 @@ public class PlayerMoveManager : MonoBehaviour
         {
             mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity");
         }
+
     }
 
     void Update()
@@ -381,14 +378,14 @@ public class PlayerMoveManager : MonoBehaviour
     {
         isPromptShowing = true;
 
-        if (promptPanel != null)
+        if (GameDataManager.Instance.promptPanel != null)
         {
-            promptPanel.SetActive(true);
+            GameDataManager.Instance.promptPanel.SetActive(true);
         }
 
-        if (promptText != null)
+        if (GameDataManager.Instance.promptText != null)
         {
-            promptText.text = $"{text}";
+            GameDataManager.Instance.promptText.text = $"{text}";
         }
     }
 
@@ -396,9 +393,9 @@ public class PlayerMoveManager : MonoBehaviour
     {
         isPromptShowing = false;
 
-        if (promptPanel != null)
+        if (GameDataManager.Instance.promptPanel != null)
         {
-            promptPanel.SetActive(false);
+            GameDataManager.Instance.promptPanel.SetActive(false);
         }
     }
 
@@ -407,12 +404,12 @@ public class PlayerMoveManager : MonoBehaviour
         if (lockState)
         {
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            GameDataManager.Instance.cursor.SetActive(false);
         }
         else
         {
             Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            GameDataManager.Instance.cursor.SetActive(true);
         }
     }
 

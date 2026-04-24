@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2e7bdf2ec22727469730698aab48a85, type: 3}
   m_Name: TeJiRanLiao
   m_EditorClassIdentifier: 
-  materialName: "\u7279\u7EA7\u67D3\u6599"
+  materialName: "\u77FF\u7269\u8272\u7C89"
   kind: 1
   level: 3
   value: 2500
   simvalravity: 10
   highvalravity: 0
+  objUI: {fileID: 5618824450340424384, guid: 82f389b7e467e6745b26596f6cfc2f7a, type: 3}
   size: []
   elegance: 10
   stability: 0
+  description: "\u5728\u6CE5\u5851\u4E2D\uFF0C\u666E\u901A\u67D3\u6599\u4EE5\u660E\u80F6\u6216\u52A8\u7269\u76AE\u80F6\u4E3A\u5A92\u67D3\u5242\uFF0C\u901A\u8FC7\u6C22\u952E\u4E0E\u8303\u5FB7\u534E\u529B\u9644\u7740\u4E8E\u6CE5\u80CE\u8868\u9762\uFF0C\u5176\u5149\u7A33\u5B9A\u6027\uFF08\u8010\u5149\u8272\u7262\u5EA6\uFF09\u8FDC\u4F4E\u4E8E\u77FF\u7269\u989C\u6599\uFF0C\u6545\u9AD8\u7EA7\u6CE5\u5851\u591A\u91C7\u7528\u77FF\u7269\u8272\u7C89\u3002"

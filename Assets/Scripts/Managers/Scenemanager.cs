@@ -26,7 +26,8 @@ public class Scenemanager : MonoBehaviour
     public enum Scenes
     {
         Start = 0,
-        Game=1
+        Game=1,
+        Game2=2
     }
 
     [Header("µ±Ç°³¡¾°")]
@@ -81,6 +82,7 @@ public class Scenemanager : MonoBehaviour
 
         SceneManager.LoadScene((int)scene);
         nowscene = scene;
+        GameDataManager.Instance.promptPanel.SetActive(false);
         //PlayerSet.Instance.ifbackhome.SetActive(false);
         //PlayerSet.Instance.sets.SetActive(false);
         yield return new WaitForSeconds(fadetime);

@@ -14,6 +14,7 @@ public class PurchaseObj : MonoBehaviour,IInteractable
         {
             return;
         }
-        InteractableManager.Instance.Interactable(InteractableManager.InteractableType.NPC);
+        //InteractableManager.Instance.Interactable(InteractableManager.InteractableType.NPC);
+        Scenemanager.Instance.LoadScene(Scenemanager.Scenes.Game2);
     }
 }
