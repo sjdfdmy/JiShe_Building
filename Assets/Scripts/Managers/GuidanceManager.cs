@@ -34,7 +34,7 @@ public class GuidanceManager : MonoBehaviour
 
     void Update()
     {
-
+        guidance.SetActive(Scenemanager.Instance.nowscene != Scenemanager.Scenes.Start);
     }
 
     void Init()

@@ -25,6 +25,7 @@ public class MaterialData : ScriptableObject
     [Range(0, 100)]
     public int highvalravity;
     public GameObject objUI;
+    public GameObject ModuleUI;
 
     [Tooltip("The shape of this material in grid cells. Include (0,0) for the pivot and relative coordinates for additional cells.")]
     public List<Vector2Int> size = new List<Vector2Int> { new Vector2Int(0, 0) };

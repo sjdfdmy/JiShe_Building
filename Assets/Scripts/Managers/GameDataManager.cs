@@ -55,9 +55,14 @@ public class GameDataManager : MonoBehaviour
 
     void Start()
     {
-        cursor.SetActive(true);
+        if (cursor != null)
+            cursor.SetActive(true);
+        for (int i = 0; i < materials.Count; i++)
+        {
+            var tmp = new ObjData { objdata = materials[i], num = i };//先用i测试
+            bags.Add(tmp);
+        }
     }
-
 
     void Update()
     {

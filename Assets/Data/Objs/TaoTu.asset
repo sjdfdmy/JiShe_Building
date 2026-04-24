@@ -19,6 +19,7 @@ MonoBehaviour:
   simvalravity: 40
   highvalravity: 0
   objUI: {fileID: 8470501062481806351, guid: bcf580bd2c985ca4eac6caf3ad81085e, type: 3}
+  ModuleUI: {fileID: 3293713041349515062, guid: 6a67211812aeb77478942d545bd1f9ce, type: 3}
   size:
   - {x: 0, y: 0}
   - {x: 1, y: 0}
