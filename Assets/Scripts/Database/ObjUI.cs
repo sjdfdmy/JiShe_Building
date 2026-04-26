@@ -14,6 +14,8 @@ public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         pickbag,
         store
     }
+
+    public GameObject prefab;
     public MaterialData obj;//预制体属性
     public Type type;//物品状态（先不用管）
     public bool nums;//启用堆叠

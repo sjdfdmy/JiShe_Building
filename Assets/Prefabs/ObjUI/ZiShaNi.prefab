@@ -576,6 +576,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4d0c4c2c5f8f546a89fdbd128cf9a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefab: {fileID: 1454497485465362753, guid: 9bba462810d088540855883047768a9b, type: 3}
   obj: {fileID: 11400000, guid: 87183e3b39387c24f9b9bca2892f6a9d, type: 2}
   type: 0
   nums: 0
