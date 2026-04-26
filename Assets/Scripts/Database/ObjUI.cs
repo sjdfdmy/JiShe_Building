@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler//, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler, IPointerDownHandler
 {
     public enum Type
     {
@@ -27,6 +27,9 @@ public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private bool fadeOriginal = true;
     [SerializeField] private float fadeAlpha = 0.4f;
+
+    private DragController dragController;
+    private Color originalBackColor = Color.white;
 
     private GameObject dragPrefab;
     private GameObject dragInstance;
@@ -119,7 +122,12 @@ public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         if (back == null)
         {
             back = transform.GetChild(0).GetComponent<Image>();
+            if (back != null)
+                originalBackColor = back.color;
         }
+
+        if (dragController == null)
+            dragController = FindObjectOfType<DragController>();
 
         gridItem = GetComponent<GridItem>();
         if (gridItem == null)
@@ -307,9 +315,60 @@ public class ObjUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
             if (nums)
                 numtext.text = num.ToString();
         }
+        if (back != null)
+            back.color = (num <= 0) ? Color.gray : originalBackColor;
     }
 
-    void Move()
+    public void OnPointerDown(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
+        var bagEntry = GameDataManager.Instance != null
+            ? GameDataManager.Instance.bags.Find(x => x.objdata == obj)
+            : null;
+        if (bagEntry == null || bagEntry.num <= 0) return;
+
+        if (dragController == null)
+            dragController = FindObjectOfType<DragController>();
+        if (dragController == null || obj.ModuleUI == null) return;
+
+        // Decrement stock immediately
+        bagEntry.num -= 1;
+
+        // Spawn the module block clone onto the canvas
+        GameObject clone = Instantiate(obj.ModuleUI, parentCanvas.transform);
+
+        RectTransform cloneRect = clone.GetComponent<RectTransform>();
+
+        // Position the clone under the pointer
+        Camera uiCam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentCanvas.transform as RectTransform,
+            eventData.position,
+            uiCam,
+            out Vector2 localPos);
+        cloneRect.anchoredPosition = localPos;
+
+        // Ensure the clone has a properly configured GridItem
+        GridItem item = clone.GetComponent<GridItem>();
+        if (item == null)
+        {
+            item = clone.AddComponent<GridItem>();
+            item.materialData = obj;
+            item.ApplyMaterialData();
+        }
+
+        dragController.StartDragFromObjUI(item, this);
+    }
+
+    /// <summary>
+    /// Restores one unit of stock to the bag entry when a placed clone is invalid and destroyed.
+    /// </summary>
+    public void RefundItem()
+    {
+        if (GameDataManager.Instance == null) return;
+        var bagEntry = GameDataManager.Instance.bags.Find(x => x.objdata == obj);
+        if (bagEntry != null)
+            bagEntry.num += 1;
     }
 }
