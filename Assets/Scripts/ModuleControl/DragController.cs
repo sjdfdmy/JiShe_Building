@@ -20,6 +20,9 @@ public class DragController : MonoBehaviour
     private bool wasInModuleBeforeDrag;
     private Camera uiCamera;
 
+    // Set when a drag was initiated by an ObjUI spawning a new block clone
+    private ObjUI sourceObjUI = null;
+
     void Start()
     {
         if (canvas == null)
@@ -46,8 +49,26 @@ public class DragController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called by ObjUI when the user presses down on a UI item that has available stock.
+    /// The item clone has already been instantiated and positioned at the mouse; this method
+    /// takes ownership of the drag so the normal drag/placement logic handles it.
+    /// On invalid placement the clone will be destroyed and the ObjUI stock refunded.
+    /// </summary>
+    public void StartDragFromObjUI(GridItem item, ObjUI source)
+    {
+        draggedItem = item;
+        sourceObjUI = source;
+        isDragging = true;
+        mouseStartPos = Input.mousePosition;
+        wasInModuleBeforeDrag = false;
+        CreateGhost();
+    }
+
     void StartDrag()
     {
+        if (isDragging) return;
+
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
@@ -57,18 +78,24 @@ public class DragController : MonoBehaviour
 
         foreach (var result in results)
         {
-
             GridItem item = result.gameObject.GetComponentInParent<GridItem>();
             if (item != null)
             {
-                draggedItem = item;
-                isDragging = true;
-                mouseStartPos = Input.mousePosition;
-                wasInModuleBeforeDrag = draggedItem.isInModule;
+                // Only interact with blocks that are already placed in the module.
+                // Non-module GridItems (e.g. those on ObjUI widgets) are ignored here so
+                // that ObjUI widgets are never accidentally dragged by this controller.
+                if (!item.isInModule) continue;
 
-                inventoryGrid.RemoveItem(draggedItem);
-                draggedItem.RectTransform.SetAsLastSibling();
-                CreateGhost();
+                // Instead of dragging a placed block, destroy it immediately and refund
+                // the corresponding bag entry so the player gets the item back.
+                inventoryGrid.RemoveItem(item);
+                if (item.materialData != null && GameDataManager.Instance != null)
+                {
+                    var bagEntry = GameDataManager.Instance.bags.Find(x => x.objdata == item.materialData);
+                    if (bagEntry != null)
+                        bagEntry.num += 1;
+                }
+                Destroy(item.gameObject);
                 break;
             }
         }
@@ -95,7 +122,21 @@ public class DragController : MonoBehaviour
 
         bool isClick = Vector2.Distance(Input.mousePosition, mouseStartPos) < 5f;
 
-        if (isClick && wasInModuleBeforeDrag)
+        if (sourceObjUI != null)
+        {
+            // Item was freshly spawned from an ObjUI – place if valid, otherwise destroy and refund.
+            if (!isClick && inventoryGrid.IsWithinBounds(draggedItem, gridPos) && inventoryGrid.IsPlacementValid(draggedItem, gridPos))
+            {
+                inventoryGrid.PlaceItem(draggedItem, gridPos);
+            }
+            else
+            {
+                Destroy(draggedItem.gameObject);
+                sourceObjUI.RefundItem();
+            }
+            sourceObjUI = null;
+        }
+        else if (isClick && wasInModuleBeforeDrag)
         {
             StartCoroutine(SmoothReturn(draggedItem));
         }

@@ -494,6 +494,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3706834399558654790, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: prefab
+      value: 
+      objectReference: {fileID: 1454497485465362753, guid: 9bba462810d088540855883047768a9b, type: 3}
+    - target: {fileID: 3706834399558654790, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
+      propertyPath: fadeOriginal
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4024723777673906095, guid: 87ff807a7d1bd4843adfd47babbea21f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
