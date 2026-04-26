@@ -20,6 +20,9 @@ public class DragController : MonoBehaviour
     private bool wasInModuleBeforeDrag;
     private Camera uiCamera;
 
+    // Set when a drag was initiated by an ObjUI spawning a new block clone
+    private ObjUI sourceObjUI = null;
+
     void Start()
     {
         if (canvas == null)
@@ -46,8 +49,26 @@ public class DragController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called by ObjUI when the user presses down on a UI item that has available stock.
+    /// The item clone has already been instantiated and positioned at the mouse; this method
+    /// takes ownership of the drag so the normal drag/placement logic handles it.
+    /// On invalid placement the clone will be destroyed and the ObjUI stock refunded.
+    /// </summary>
+    public void StartDragFromObjUI(GridItem item, ObjUI source)
+    {
+        draggedItem = item;
+        sourceObjUI = source;
+        isDragging = true;
+        mouseStartPos = Input.mousePosition;
+        wasInModuleBeforeDrag = false;
+        CreateGhost();
+    }
+
     void StartDrag()
     {
+        if (isDragging) return;
+
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
@@ -95,7 +116,21 @@ public class DragController : MonoBehaviour
 
         bool isClick = Vector2.Distance(Input.mousePosition, mouseStartPos) < 5f;
 
-        if (isClick && wasInModuleBeforeDrag)
+        if (sourceObjUI != null)
+        {
+            // Item was freshly spawned from an ObjUI – place if valid, otherwise destroy and refund.
+            if (!isClick && inventoryGrid.IsWithinBounds(draggedItem, gridPos) && inventoryGrid.IsPlacementValid(draggedItem, gridPos))
+            {
+                inventoryGrid.PlaceItem(draggedItem, gridPos);
+            }
+            else
+            {
+                Destroy(draggedItem.gameObject);
+                sourceObjUI.RefundItem();
+            }
+            sourceObjUI = null;
+        }
+        else if (isClick && wasInModuleBeforeDrag)
         {
             StartCoroutine(SmoothReturn(draggedItem));
         }
