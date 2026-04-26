@@ -84,7 +84,7 @@ public class DragController : MonoBehaviour
                 // Only interact with blocks that are already placed in the module.
                 // Non-module GridItems (e.g. those on ObjUI widgets) are ignored here so
                 // that ObjUI widgets are never accidentally dragged by this controller.
-                if (!item.isInModule) break;
+                if (!item.isInModule) continue;
 
                 // Instead of dragging a placed block, destroy it immediately and refund
                 // the corresponding bag entry so the player gets the item back.
