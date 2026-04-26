@@ -78,18 +78,24 @@ public class DragController : MonoBehaviour
 
         foreach (var result in results)
         {
-
             GridItem item = result.gameObject.GetComponentInParent<GridItem>();
             if (item != null)
             {
-                draggedItem = item;
-                isDragging = true;
-                mouseStartPos = Input.mousePosition;
-                wasInModuleBeforeDrag = draggedItem.isInModule;
+                // Only interact with blocks that are already placed in the module.
+                // Non-module GridItems (e.g. those on ObjUI widgets) are ignored here so
+                // that ObjUI widgets are never accidentally dragged by this controller.
+                if (!item.isInModule) continue;
 
-                inventoryGrid.RemoveItem(draggedItem);
-                draggedItem.RectTransform.SetAsLastSibling();
-                CreateGhost();
+                // Instead of dragging a placed block, destroy it immediately and refund
+                // the corresponding bag entry so the player gets the item back.
+                inventoryGrid.RemoveItem(item);
+                if (item.materialData != null && GameDataManager.Instance != null)
+                {
+                    var bagEntry = GameDataManager.Instance.bags.Find(x => x.objdata == item.materialData);
+                    if (bagEntry != null)
+                        bagEntry.num += 1;
+                }
+                Destroy(item.gameObject);
                 break;
             }
         }
